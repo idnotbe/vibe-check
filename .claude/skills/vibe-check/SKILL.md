@@ -1,7 +1,11 @@
 ---
 name: vibe-check
 description: Metacognitive sanity check for agent plans. Use before irreversible actions, when uncertainty is high, or when complexity is escalating. Helps prevent tunnel vision, over-engineering, and goal misalignment.
-argument-hint: goal: [목표] plan: [계획] (또는 자유 형식 텍스트)
+argument-hint: goal: [목표] plan: [계획] apiProvider: [openai|google|anthropic] model: [모델명] (또는 자유 형식 텍스트)
+required_environment:
+  - OPENAI_API_KEY
+  - GEMINI_API_KEY
+  - ANTHROPIC_API_KEY
 ---
 
 # Vibe Check - Metacognitive Feedback
@@ -28,7 +32,16 @@ You are now acting as a **meta-mentor** - an experienced feedback provider speci
 | `progress` | 현재까지의 진행 상황. 이미 완료한 작업이나 현재 단계 |
 | `uncertainties` | 불확실한 점들, 우려 사항. 쉼표로 구분하거나 여러 줄로 작성 |
 | `taskContext` | 작업의 배경 맥락 (기술 스택, 제약 조건, 환경 등) |
-| `modelOverride` | 특정 모델 지정 (생략 시 현재 세션의 기본 모델 사용) |
+| `apiProvider` | API 제공자 (openai, google, anthropic 중 선택) |
+| `model` | 사용할 모델명 (제공자별 지원 모델 참조) |
+
+### Supported API Providers and Models
+
+| Provider | Models | Environment Variable |
+|----------|--------|---------------------|
+| `openai` | `gpt-5.2-high`, `codex-5.2-high` | `OPENAI_API_KEY` |
+| `google` | `gemini-3.0-pro-preview`, `gemini-3.0-flash-preview` | `GEMINI_API_KEY` |
+| `anthropic` | `claude-sonnet-4.5`, `claude-opus-4.5` | `ANTHROPIC_API_KEY` |
 
 ### Input Format Examples
 
@@ -40,7 +53,8 @@ plan: OAuth2 + JWT 토큰 방식, Redis 세션 저장소
 progress: 아직 시작 전
 uncertainties: Redis가 정말 필요한지, 토큰 만료 시간 설정
 taskContext: Express.js 백엔드, PostgreSQL DB
-modelOverride: claude-3-5-sonnet (선택사항)
+apiProvider: anthropic (선택사항)
+model: claude-opus-4.5 (선택사항)
 ```
 
 **자연어 형식:**
@@ -53,11 +67,42 @@ modelOverride: claude-3-5-sonnet (선택사항)
 /vibe-check OAuth2 인증 구현 / JWT + Redis 세션 저장소
 ```
 
-### modelOverride 처리
+### API Provider 및 Model 처리
 
-- **기본값**: 현재 Claude Code 세션의 기본 모델 (별도 지정 불필요)
+#### 기본 동작
+- **기본값**: apiProvider와 model이 지정되지 않으면 현재 Claude Code 세션의 기본 모델 사용
 - **지정 시**: 해당 요청에 대해 지정된 모델의 특성을 고려하여 피드백 제공
-- Skills 환경에서는 실제 모델 전환이 아닌, 지정된 모델의 관점에서 피드백 조정
+
+#### Provider별 특성
+- **OpenAI (gpt-5.2-high, codex-5.2-high)**:
+  - gpt-5.2-high: 범용 고성능 추론 모델
+  - codex-5.2-high: 코드 특화 모델, 복잡한 코딩 작업에 최적화
+
+- **Google (gemini-3.0-pro-preview, gemini-3.0-flash-preview)**:
+  - gemini-3.0-pro-preview: 균형 잡힌 성능과 비용
+  - gemini-3.0-flash-preview: 빠른 응답, 간단한 작업에 적합
+
+- **Anthropic (claude-sonnet-4.5, claude-opus-4.5)**:
+  - claude-sonnet-4.5: 빠르고 효율적인 추론
+  - claude-opus-4.5: 최고 수준의 분석 및 창의적 작업
+
+#### 설정 방법
+
+~/.claude/settings.json에서 환경변수 설정:
+```json
+{
+  "environment_variables": {
+    "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+    "GEMINI_API_KEY": "${GEMINI_API_KEY}",
+    "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
+  }
+}
+```
+
+#### 유효성 검사
+- apiProvider가 지정되면 model도 반드시 지정해야 함
+- 지정된 model이 해당 apiProvider에서 지원하는 모델인지 확인
+- 해당 provider의 API key 환경변수가 설정되어 있는지 확인
 
 ---
 
