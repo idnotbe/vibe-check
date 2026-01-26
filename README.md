@@ -21,8 +21,6 @@ Based on research showing **+27% improvement in success rates** and **-41% reduc
 
 - **Metacognitive Feedback**: Challenge assumptions and prevent tunnel vision
 - **Pattern Recognition**: Identify common pitfalls (over-engineering, feature creep, etc.)
-- **Learning System**: Record and learn from mistakes
-- **Session Rules**: Set behavioral guidelines for each session
 
 ## Installation
 
@@ -33,26 +31,15 @@ Based on research showing **+27% improvement in success rates** and **-41% reduc
    cp -r .claude/skills/ /path/to/your/project/.claude/skills/
    ```
 
-2. Copy the `data/` directory for persistent storage:
-   ```bash
-   cp -r data/ /path/to/your/project/data/
-   ```
-
-3. Skills are now available in Claude Code!
+2. Skills are now available in Claude Code!
 
 ### Directory Structure
 
 ```
 your-project/
-├── .claude/
-│   └── skills/
-│       ├── vibe-check/        # Metacognitive feedback
-│       ├── vibe-learn/        # Learning records
-│       └── vibe-constitution/ # Session rules
-└── data/
-    ├── learnings.json         # Learning entries
-    ├── constitution.json      # Session rules
-    └── history.json           # Session history
+└── .claude/
+    └── skills/
+        └── vibe-check/        # Metacognitive feedback
 ```
 
 ## Usage
@@ -71,47 +58,11 @@ Claude will analyze your plan and provide:
 - Pattern warnings (if applicable)
 - Clear recommendations
 
-### `/vibe-learn` - Record Learnings
-
-Record mistakes, preferences, or successes:
-
-```
-/vibe-learn mistake "Used complex custom date parser instead of built-in Date" "Replaced with native Date.parse()"
-
-/vibe-learn preference "User prefers TypeScript over JavaScript"
-
-/vibe-learn success "Breaking large function into smaller ones improved readability"
-```
-
-Categories for mistakes:
-- `complex-solution-bias` - Unnecessarily complex approaches
-- `feature-creep` - Adding unrequested functionality
-- `premature-implementation` - Coding before understanding
-- `misalignment` - Drifting from user intent
-- `overtooling` - Using too many tools/libraries
-
-### `/vibe-constitution` - Session Rules
-
-Set behavioral guidelines for the session:
-
-```
-# Add a rule
-/vibe-constitution update "Always explain approach before writing code"
-
-# Reset all rules
-/vibe-constitution reset "Run tests before commits" "Keep functions under 50 lines"
-
-# Check current rules
-/vibe-constitution check
-```
-
 ## When to Use
 
 - **Before irreversible actions**: deployments, database migrations, API changes
 - **When uncertainty is high**: unfamiliar technology, unclear requirements
 - **When complexity escalates**: nested conditionals, multiple dependencies
-- **After making mistakes**: record them to prevent repetition
-- **At session start**: set behavioral guidelines
 
 ## Pattern Watch
 
