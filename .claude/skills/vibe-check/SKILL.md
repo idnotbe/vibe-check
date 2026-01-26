@@ -119,16 +119,3 @@ Don't invent problems. Acknowledge it's well-thought-out and give approval to pr
 **If uncertainty is genuinely high:**
 Acknowledge the uncertainty and suggest ways to reduce it before proceeding.
 
-## Constitution Integration
-
-If session rules have been set via `/vibe-constitution`, check them when evaluating the plan:
-
-```
-Active session rules:
-!`cat data/constitution.json 2>/dev/null | grep -o '"rules":\[[^]]*\]' || echo '"rules":[]'`
-```
-
-When constitution rules exist:
-- Check if the plan adheres to each active rule
-- Note any potential rule violations in your assessment
-- Include rule compliance in your recommendation
