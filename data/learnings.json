@@ -1,0 +1,13 @@
+{
+  "entries": [],
+  "stats": {
+    "complex-solution-bias": 0,
+    "feature-creep": 0,
+    "premature-implementation": 0,
+    "misalignment": 0,
+    "overtooling": 0,
+    "other": 0
+  },
+  "created": "2026-01-26T00:00:00Z",
+  "version": "1.0.0"
+}
