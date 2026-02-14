@@ -1,0 +1,21 @@
+{
+  "name": "vibe-checking",
+  "version": "0.1.0",
+  "description": "Metacognitive sanity checks for agent plans. Use before irreversible actions, when uncertainty is high, or when complexity is escalating.",
+  "author": {
+    "name": "idnotbe",
+    "url": "https://github.com/idnotbe"
+  },
+  "skills": [
+    "./.claude/skills/vibe-check"
+  ],
+  "homepage": "https://github.com/idnotbe/vibe-checking",
+  "repository": "https://github.com/idnotbe/vibe-checking",
+  "license": "MIT",
+  "keywords": [
+    "vibe-check",
+    "metacognition",
+    "sanity-check",
+    "agent-safety"
+  ]
+}
