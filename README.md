@@ -1,4 +1,4 @@
-# Vibe Checking - Agent Skills
+# Vibe Check - Agent Skills
 
 Metacognitive sanity checks for agent plans. Use before irreversible actions, when uncertainty is high, or when complexity is escalating.
 
