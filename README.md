@@ -12,7 +12,7 @@ This is an **Agent Skills** implementation of the [vibe-check-mcp-server](https:
 |--------|------------|--------------|
 | Runtime | External Node.js process | Native Claude integration |
 | LLM Calls | External API (Gemini, OpenAI, etc.) | Claude itself acts as meta-mentor |
-| Installation | npm package | Copy `.claude/skills/` directory |
+| Installation | npm package | Copy skills directory |
 | Dependencies | Node.js, API keys | None |
 
 ## Features
@@ -26,7 +26,7 @@ Based on research showing **+27% improvement in success rates** and **-41% reduc
 
 ### Quick Setup
 
-1. Copy the `.claude/skills/` directory to your project:
+1. Copy the skills directory to your project:
    ```bash
    cp -r .claude/skills/ /path/to/your/project/.claude/skills/
    ```
@@ -37,19 +37,21 @@ Based on research showing **+27% improvement in success rates** and **-41% reduc
 
 ```
 your-project/
-└── .claude/
-    └── skills/
-        └── vibe-check/        # Metacognitive feedback
+  .claude/
+    skills/
+      vibe-check/        # Metacognitive feedback
 ```
 
 ## Usage
 
-### `/vibe-check` - Metacognitive Sanity Check
+### /vibe-check - Metacognitive Sanity Check
 
 Use before important decisions or when feeling uncertain:
 
 ```
-/vibe-check My goal is to add user authentication. My plan is to implement OAuth2 with JWT tokens, set up Redis for session storage, and create a custom middleware layer.
+/vibe-check My goal is to add user authentication. My plan is to implement
+OAuth2 with JWT tokens, set up Redis for session storage, and create a
+custom middleware layer.
 ```
 
 Claude will analyze your plan and provide:
@@ -75,6 +77,28 @@ The tool helps identify these common pitfalls:
 | Premature Implementation | Writing code before understanding | Read docs, ask questions first |
 | Misalignment | Solving different problem than asked | Re-read original request |
 | Overtooling | Adding many dependencies | Evaluate necessity of each |
+
+## Testing
+
+Run the structural validator:
+
+```bash
+bash tests/validate_skill.sh
+```
+
+This checks SKILL.md for correct frontmatter, required sections, provider/model
+documentation, parameter docs, and configuration examples (28 checks total).
+
+**Test files:**
+
+| File | Type | Status |
+|------|------|--------|
+| tests/validate_skill.sh | Automated (bash) | Passes all 28 checks |
+| tests/test_scenarios.md | Manual plan | Korean, not yet executed |
+| tests/api_provider.test.ts | TypeScript | Dead code -- no Node.js scaffolding |
+
+The TypeScript test file cannot run (no package.json or tsconfig.json). See
+TEST-PLAN.md for cleanup recommendations.
 
 ## Credits
 
