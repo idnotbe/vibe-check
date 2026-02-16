@@ -2,21 +2,36 @@
 
 ## Design Philosophy
 
-### MCP → Skills 변환 핵심 원칙
+### Core Principles: MCP to Skills Conversion
 
-1. **Claude가 메타멘토 역할**: 원본 MCP 서버가 외부 LLM을 호출해 피드백을 생성했다면, Skills에서는 Claude 자체가 메타멘토 역할 수행
-2. **지침 기반 접근**: 구체적인 지침으로 Claude의 행동 가이드
+1. **Claude as Meta-Mentor**: The original MCP server called external LLMs to generate feedback. In the Skills version, Claude itself acts as the meta-mentor -- no external process or API calls required.
+2. **Instruction-Based Approach**: Detailed instructions in SKILL.md guide Claude's behavior, replacing the external runtime logic of the MCP server.
 
 ---
 
-## Skills Structure
+## Plugin Structure
 
 ```
-.claude/
-└── skills/
-    └── vibe-check/
-        └── SKILL.md              # 메인 메타인지 피드백 skill
+vibe-check/
+  .claude/
+    skills/
+      vibe-check/
+        SKILL.md                 # Core skill prompt (the entire "implementation")
+  .claude-plugin/
+    plugin.json                  # Plugin manifest (name, version, skills path, author, etc.)
+  tests/
+    validate_skill.sh            # Structural validator (28 checks across 9 test groups)
+    api_provider.test.ts         # Dead code (no Node.js scaffolding)
+    test_scenarios.md            # Manual test plan (Korean)
+  ARCHITECTURE.md                # Architecture design document (this file)
+  CLAUDE.md                      # Claude Code project instructions
+  TEST-PLAN.md                   # Test infrastructure roadmap
+  README.md                      # User-facing documentation
+  LICENSE                        # MIT License
+  .gitignore                     # Git ignore rules
 ```
+
+The `.claude-plugin/plugin.json` manifest defines plugin metadata (name: `vibe-check`, version: `0.1.0`, skills path, author, homepage, repository, license, keywords) for plugin distribution. The `.claude/skills/vibe-check/SKILL.md` file is the sole functional artifact.
 
 ---
 
@@ -24,64 +39,139 @@
 
 ### vibe-check Skill
 
-**목적**: 에이전트 계획에 대한 메타인지적 피드백 제공
+**Purpose**: Provide metacognitive feedback on agent plans.
 
 **YAML Frontmatter:**
 ```yaml
 name: vibe-check
-description: Metacognitive sanity check for agent plans. Use before irreversible actions, when uncertainty is high, or when complexity is escalating.
-argument-hint: <goal> <plan>
+description: Metacognitive sanity check for agent plans. Use before irreversible actions, when uncertainty is high, or when complexity is escalating. Helps prevent tunnel vision, over-engineering, and goal misalignment.
+argument-hint: goal: [목표] plan: [계획] apiProvider: [openai|google|anthropic] model: [모델명] (또는 자유 형식 텍스트)
+required_environment:
+  - OPENAI_API_KEY
+  - GEMINI_API_KEY
+  - ANTHROPIC_API_KEY
 ```
 
-**핵심 기능:**
-- 계획의 4가지 차원 평가
-  1. 상황 분석 (문제의 본질, 접근법)
-  2. 진단 평가 (패턴 인식, 가정 점검)
-  3. 응답 유형 (기술 가이드 / 부드러운 질문 / 검증)
-  4. 경로 수정 (모범 사례 상기 또는 진행 승인)
+Note: The above YAML frontmatter is reproduced verbatim from SKILL.md, including Korean text in the `argument-hint`. The Korean portions translate as: `[목표]` = "[goal]", `[계획]` = "[plan]", `[모델명]` = "[model name]", `(또는 자유 형식 텍스트)` = "(or free-form text)". `required_environment` is metadata for provider/model documentation. The plugin makes no outbound API calls and functions without these keys for basic usage.
 
-**메타멘토 질문:**
-1. 이 계획이 사용자의 실제 요청을 해결하는가?
-2. 더 단순한 대안이 있는가?
-3. 어떤 가정이 사고를 제한하고 있는가?
-4. 접근법이 원래 의도와 얼마나 일치하는가?
+**Core Capabilities -- 4-Dimension Evaluation:**
+1. **Situational Analysis**: Nature of the problem, appropriateness of approach
+2. **Diagnostic Assessment**: Pattern recognition, assumption checking, intervention level
+3. **Response Type Selection**: Technical guidance / gentle questioning / stern redirection / validation
+4. **Course Correction**: Best practice reminders, simpler alternatives, refocusing questions
 
-**Categories to Watch (경고 패턴):**
-- Complex Solution Bias (복잡한 솔루션 편향)
-- Feature Creep (기능 범위 확장)
-- Premature Implementation (조기 구현)
-- Misalignment (목표 불일치)
-- Overtooling (과도한 도구 사용)
+**Core Meta-Mentor Questions:**
+1. Does this plan actually solve what the user asked for?
+2. Is there a simpler alternative?
+3. What assumptions might be limiting the thinking?
+4. How closely does this align with the original intent?
+
+**Pattern Watch Categories:**
+- Complex Solution Bias
+- Feature Creep
+- Premature Implementation
+- Misalignment
+- Overtooling
+
+### Parameters
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `goal` | Yes | What the user is trying to accomplish |
+| `plan` | Yes | Detailed strategy or approach |
+| `progress` | No | Current progress -- work completed so far |
+| `uncertainties` | No | Concerns or unknowns |
+| `taskContext` | No | Background context (tech stack, constraints) |
+| `apiProvider` | No | Provider: `openai`, `google`, or `anthropic` |
+| `model` | No | Model name (must match chosen provider) |
+
+### API Provider and Model Architecture
+
+The `apiProvider` and `model` parameters allow users to request feedback that considers a specific model's characteristics. **These do not trigger external API calls.** Claude remains the model generating feedback -- it incorporates knowledge of the specified model's strengths into its analysis.
+
+**Supported Providers and Models:**
+
+| Provider | Models | Environment Variable |
+|----------|--------|---------------------|
+| `openai` | `gpt-5.2-high`, `codex-5.2-high` | `OPENAI_API_KEY` |
+| `google` | `gemini-3.0-pro-preview`, `gemini-3.0-flash-preview` | `GEMINI_API_KEY` |
+| `anthropic` | `claude-sonnet-4.5`, `claude-opus-4.5` | `ANTHROPIC_API_KEY` |
+
+**Validation Rules:**
+- If `apiProvider` is specified, `model` must also be specified
+- The model must be supported by the chosen provider
+- The corresponding API key environment variable must be configured
+
+**Configuration** is done via `~/.claude/settings.json` (see README for example).
 
 ---
 
 ## Implementation Notes
 
-### Claude의 메타멘토 역할
+### Claude as Meta-Mentor
 
-MCP 서버가 외부 LLM을 호출한 것과 달리, Skills에서는:
-- Claude 자체가 메타멘토 역할 수행
-- SKILL.md에 상세한 평가 기준/질문 포함
-- Claude의 자기 성찰 능력 활용
+Unlike the MCP server which called external LLMs, the Skills version:
+- Has Claude itself perform the meta-mentor role
+- Embeds detailed evaluation criteria and questions in SKILL.md
+- Leverages Claude's self-reflection capabilities
 
-이는 오히려 장점:
-- 외부 API 호출 없음 (비용/지연 절감)
-- Claude의 맥락 이해 활용
-- 더 일관된 피드백 품질
+This is an intentional trade-off with advantages:
+- No external API calls (reduced cost and latency)
+- Leverages Claude's existing context understanding
+- More consistent feedback quality
+
+And limitations:
+- No genuine multi-model perspective (Claude simulates model awareness)
+- Feedback is always from a single model, regardless of `apiProvider`/`model` settings
+
+### Bilingual Content in SKILL.md
+
+SKILL.md contains bilingual content (English and Korean). Structural elements (evaluation framework, output format, core questions, tone guidelines) are in English. Parameter descriptions, input format examples, and provider configuration instructions are in Korean, reflecting the original development context. This is a known inconsistency with the English-only documentation guideline in CLAUDE.md.
+
+---
+
+## Testing Architecture
+
+### Structural Validation
+
+`tests/validate_skill.sh` performs 28 automated checks across 9 test groups:
+
+1. **Existence**: SKILL.md file exists
+2. **Frontmatter**: Delimiters (`---`), name (`vibe-check`), description present
+3. **Required Environment**: Section exists, 3 API keys listed
+4. **API Providers**: 3 provider names documented (`openai`, `google`, `anthropic`)
+5. **Models**: 6 model names documented
+6. **Parameters**: 7 parameter names documented (`goal`, `plan`, `progress`, `uncertainties`, `taskContext`, `apiProvider`, `model`)
+7. **Deprecated Parameters**: `modelOverride` absent
+8. **Configuration Examples**: `environment_variables` reference present (pass/fail), `settings.json` reference present (pass/warn)
+9. **Provider-Model Mapping**: Mapping table header present
+
+### Other Test Files
+
+- `tests/api_provider.test.ts`: Dead code -- no Node.js scaffolding exists. Cannot run.
+- `tests/test_scenarios.md`: Manual test plan in Korean. Has never been executed.
+
+See TEST-PLAN.md for the full test infrastructure roadmap.
 
 ---
 
 ## Migration Path
 
-원본 MCP 서버 사용자가 Skills로 전환시:
+For users migrating from the MCP server ([PV-Bhat/vibe-check-mcp-server](https://github.com/PV-Bhat/vibe-check-mcp-server)):
 
-1. Skills 설치 (`.claude/skills/` 복사)
-2. `/vibe-check` 사용
+1. Remove MCP server configuration from your project
+2. Copy `.claude/skills/` directory into your project (or install via plugin manifest)
+3. Use `/vibe-check` in Claude Code instead of the MCP tool invocation
+
+Key differences after migration:
+- External model calls are replaced by Claude's own meta-analysis
+- No npm dependencies or external processes needed
+- API keys are optional metadata, not runtime requirements
 
 ---
 
 ## Version Considerations
 
-- Skills 버전: 1.0.0
-- 원본 MCP 서버 참조 버전: 최신 (2026-01)
-- Claude Code Skills 스펙 버전: Agent Skills 표준 + Claude 확장
+- Plugin version: 0.1.0 (defined in `.claude-plugin/plugin.json`)
+- Original MCP server reference: [PV-Bhat/vibe-check-mcp-server](https://github.com/PV-Bhat/vibe-check-mcp-server)
+- Specification: [Agent Skills](https://agentskills.io) standard with Claude Code extensions

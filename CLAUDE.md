@@ -9,19 +9,45 @@ act as a meta-mentor.
 ## Repo Structure
 
     .claude/skills/vibe-check/SKILL.md   # The skill prompt (core artifact)
-    .claude-plugin/plugin.json            # Plugin manifest
+    .claude-plugin/plugin.json            # Plugin manifest (v0.1.0)
     tests/validate_skill.sh               # Automated structural validator (28 checks)
     tests/api_provider.test.ts            # DEAD CODE -- see Testing notes
     tests/test_scenarios.md               # Manual test plan (Korean)
+    README.md                             # User-facing documentation
+    ARCHITECTURE.md                       # Architecture design document
+    CLAUDE.md                             # This file -- Claude Code project instructions
+    TEST-PLAN.md                          # Test infrastructure roadmap
+    LICENSE                               # MIT License
+    .gitignore                            # Git ignore rules
 
 ## Key Facts
 
 - **No runtime dependencies.** The plugin is prompt-only; nothing executes.
-- SKILL.md declares required_environment (3 API keys). These are metadata for
-  provider/model documentation -- this repo makes no outbound API calls.
-- README says "Dependencies: None" while SKILL.md lists required keys. This is a
-  known contract mismatch (see TEST-PLAN.md P1).
-- ARCHITECTURE.md and test_scenarios.md are written in Korean.
+- SKILL.md declares `required_environment` (3 API keys). These are metadata for
+  the `apiProvider`/`model` feature -- this repo makes no outbound API calls.
+  The `apiProvider` and `model` parameters let users request feedback that
+  considers a specific model's characteristics, but Claude itself generates all
+  feedback. No external models are called.
+- README clarifies the "Dependencies: None" claim with a footnote explaining
+  that `required_environment` keys are metadata, not runtime dependencies.
+  See TEST-PLAN.md P1.1 for the full discussion.
+- **SKILL.md is bilingual** (English and Korean). Structural elements (evaluation
+  framework, output format, core questions) are in English. Parameter descriptions,
+  input format examples, and configuration instructions are in Korean. This is a
+  known inconsistency with the English-only guideline below.
+- tests/test_scenarios.md is written in Korean.
+
+## The apiProvider/model Feature
+
+SKILL.md (lines 38-106) defines an `apiProvider`/`model` system supporting 3
+providers (openai, google, anthropic) and 6 models. Key points:
+
+- **These do NOT trigger external API calls.** Claude adjusts its feedback style
+  to consider the specified model's characteristics.
+- Parameters: `apiProvider` (openai|google|anthropic) and `model` (provider-specific)
+- If `apiProvider` is specified, `model` must also be specified; model must match provider
+- API key env vars are validated as metadata but never used for actual API calls
+- Configuration via `~/.claude/settings.json` `environment_variables`
 
 ## Testing
 
@@ -31,10 +57,10 @@ All automated tests live in this repo.
 
     bash tests/validate_skill.sh
 
-This is the only runnable test. It validates SKILL.md structure: frontmatter,
-required_environment, API provider docs, model docs, parameter docs, deprecated
-parameter absence, config examples, and provider-model mapping table.
-28 checks total; exit code 0 on success, 1 on failure.
+This is the only runnable test. It validates SKILL.md structure: file existence,
+frontmatter, required_environment, API provider docs, model docs, parameter docs,
+deprecated parameter absence, config examples, and provider-model mapping table.
+28 checks across 9 test groups; exit code 0 on success, 1 on failure.
 
 ### Test File Status
 
