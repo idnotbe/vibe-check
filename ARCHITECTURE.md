@@ -21,8 +21,7 @@ vibe-check/
     plugin.json                  # Plugin manifest (name, version, skills path, author, etc.)
   tests/
     validate_skill.sh            # Structural validator (28 checks across 9 test groups)
-    api_provider.test.ts         # Dead code (no Node.js scaffolding)
-    test_scenarios.md            # Manual test plan (Korean)
+    test_scenarios.md            # Manual test plan
   ARCHITECTURE.md                # Architecture design document (this file)
   CLAUDE.md                      # Claude Code project instructions
   TEST-PLAN.md                   # Test infrastructure roadmap
@@ -45,14 +44,14 @@ The `.claude-plugin/plugin.json` manifest defines plugin metadata (name: `vibe-c
 ```yaml
 name: vibe-check
 description: Metacognitive sanity check for agent plans. Use before irreversible actions, when uncertainty is high, or when complexity is escalating. Helps prevent tunnel vision, over-engineering, and goal misalignment.
-argument-hint: goal: [목표] plan: [계획] apiProvider: [openai|google|anthropic] model: [모델명] (또는 자유 형식 텍스트)
+argument-hint: goal: [goal] plan: [plan] apiProvider: [openai|google|anthropic] model: [model] (or free-form text)
 required_environment:
   - OPENAI_API_KEY
   - GEMINI_API_KEY
   - ANTHROPIC_API_KEY
 ```
 
-Note: The above YAML frontmatter is reproduced verbatim from SKILL.md, including Korean text in the `argument-hint`. The Korean portions translate as: `[목표]` = "[goal]", `[계획]` = "[plan]", `[모델명]` = "[model name]", `(또는 자유 형식 텍스트)` = "(or free-form text)". `required_environment` is metadata for provider/model documentation. The plugin makes no outbound API calls and functions without these keys for basic usage.
+Note: The above YAML frontmatter is reproduced verbatim from SKILL.md. `required_environment` is metadata for provider/model documentation. The plugin makes no outbound API calls and functions without these keys for basic usage.
 
 **Core Capabilities -- 4-Dimension Evaluation:**
 1. **Situational Analysis**: Nature of the problem, appropriateness of approach
@@ -124,10 +123,6 @@ And limitations:
 - No genuine multi-model perspective (Claude simulates model awareness)
 - Feedback is always from a single model, regardless of `apiProvider`/`model` settings
 
-### Bilingual Content in SKILL.md
-
-SKILL.md contains bilingual content (English and Korean). Structural elements (evaluation framework, output format, core questions, tone guidelines) are in English. Parameter descriptions, input format examples, and provider configuration instructions are in Korean, reflecting the original development context. This is a known inconsistency with the English-only documentation guideline in CLAUDE.md.
-
 ---
 
 ## Testing Architecture
@@ -148,8 +143,7 @@ SKILL.md contains bilingual content (English and Korean). Structural elements (e
 
 ### Other Test Files
 
-- `tests/api_provider.test.ts`: Dead code -- no Node.js scaffolding exists. Cannot run.
-- `tests/test_scenarios.md`: Manual test plan in Korean. Has never been executed.
+- `tests/test_scenarios.md`: Manual test plan. Has never been executed.
 
 See TEST-PLAN.md for the full test infrastructure roadmap.
 

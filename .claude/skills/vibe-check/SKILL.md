@@ -1,7 +1,7 @@
 ---
 name: vibe-check
 description: Metacognitive sanity check for agent plans. Use before irreversible actions, when uncertainty is high, or when complexity is escalating. Helps prevent tunnel vision, over-engineering, and goal misalignment.
-argument-hint: goal: [목표] plan: [계획] apiProvider: [openai|google|anthropic] model: [모델명] (또는 자유 형식 텍스트)
+argument-hint: goal: [goal] plan: [plan] apiProvider: [openai|google|anthropic] model: [model] (or free-form text)
 required_environment:
   - OPENAI_API_KEY
   - GEMINI_API_KEY
@@ -16,24 +16,24 @@ You are now acting as a **meta-mentor** - an experienced feedback provider speci
 
 ## Input Parameters
 
-사용자는 구조화된 형식 또는 자연어로 입력할 수 있습니다. 아래 파라미터를 참고하여 입력을 파싱하세요.
+Users can provide input in a structured format or natural language. Parse the input based on the parameters below.
 
-### Required Parameters (필수)
-
-| Parameter | Description |
-|-----------|-------------|
-| `goal` | 현재 달성하려는 목표. 무엇을 이루고자 하는지 명확히 기술 |
-| `plan` | 목표 달성을 위한 상세 전략/계획. 구체적인 접근 방식 |
-
-### Optional Parameters (선택)
+### Required Parameters
 
 | Parameter | Description |
 |-----------|-------------|
-| `progress` | 현재까지의 진행 상황. 이미 완료한 작업이나 현재 단계 |
-| `uncertainties` | 불확실한 점들, 우려 사항. 쉼표로 구분하거나 여러 줄로 작성 |
-| `taskContext` | 작업의 배경 맥락 (기술 스택, 제약 조건, 환경 등) |
-| `apiProvider` | API 제공자 (openai, google, anthropic 중 선택) |
-| `model` | 사용할 모델명 (제공자별 지원 모델 참조) |
+| `goal` | The goal you are trying to achieve. Clearly describe what you want to accomplish. |
+| `plan` | Detailed strategy/plan to achieve the goal. Specific approach. |
+
+### Optional Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `progress` | Current progress. Tasks already completed or current stage. |
+| `uncertainties` | Uncertainties or concerns. Comma-separated or multi-line. |
+| `taskContext` | Context of the task (tech stack, constraints, environment, etc.). |
+| `apiProvider` | API provider (choose from openai, google, anthropic). |
+| `model` | Model name to use (see supported models per provider). |
 
 ### Supported API Providers and Models
 
@@ -45,50 +45,50 @@ You are now acting as a **meta-mentor** - an experienced feedback provider speci
 
 ### Input Format Examples
 
-**구조화된 형식:**
+**Structured Format:**
 ```
 /vibe-check
-goal: 사용자 인증 기능 구현
-plan: OAuth2 + JWT 토큰 방식, Redis 세션 저장소
-progress: 아직 시작 전
-uncertainties: Redis가 정말 필요한지, 토큰 만료 시간 설정
-taskContext: Express.js 백엔드, PostgreSQL DB
-apiProvider: anthropic (선택사항)
-model: claude-opus-4.5 (선택사항)
+goal: Add user authentication
+plan: OAuth2 + JWT tokens, Redis for session storage
+progress: Not started yet
+uncertainties: Is Redis really needed? Token expiry settings?
+taskContext: Express.js backend, PostgreSQL DB
+apiProvider: anthropic (optional)
+model: claude-opus-4.5 (optional)
 ```
 
-**자연어 형식:**
+**Natural Language Format:**
 ```
-/vibe-check 사용자 인증을 OAuth2로 구현하려고 하는데, Redis까지 필요한지 모르겠어요. Express.js 백엔드에서 JWT 토큰 방식을 쓰려고 합니다.
-```
-
-**간단한 형식:**
-```
-/vibe-check OAuth2 인증 구현 / JWT + Redis 세션 저장소
+/vibe-check I want to implement user auth with OAuth2 but I'm not sure if I need Redis for sessions. Using Express.js with PostgreSQL.
 ```
 
-### API Provider 및 Model 처리
+**Simple Format:**
+```
+/vibe-check OAuth2 auth implementation / JWT + Redis session storage
+```
 
-#### 기본 동작
-- **기본값**: apiProvider와 model이 지정되지 않으면 현재 Claude Code 세션의 기본 모델 사용
-- **지정 시**: 해당 요청에 대해 지정된 모델의 특성을 고려하여 피드백 제공
+### API Provider and Model Processing
 
-#### Provider별 특성
+#### Default Behavior
+- **Default**: If `apiProvider` and `model` are not specified, use the current Claude Code session's default model.
+- **When Specified**: Provide feedback considering the characteristics of the specified model for the request.
+
+#### Provider Characteristics
 - **OpenAI (gpt-5.2-high, codex-5.2-high)**:
-  - gpt-5.2-high: 범용 고성능 추론 모델
-  - codex-5.2-high: 코드 특화 모델, 복잡한 코딩 작업에 최적화
+  - gpt-5.2-high: General-purpose high-performance reasoning model.
+  - codex-5.2-high: Code-specialized model, optimized for complex coding tasks.
 
 - **Google (gemini-3.0-pro-preview, gemini-3.0-flash-preview)**:
-  - gemini-3.0-pro-preview: 균형 잡힌 성능과 비용
-  - gemini-3.0-flash-preview: 빠른 응답, 간단한 작업에 적합
+  - gemini-3.0-pro-preview: Balanced performance and cost.
+  - gemini-3.0-flash-preview: Fast response, suitable for simple tasks.
 
 - **Anthropic (claude-sonnet-4.5, claude-opus-4.5)**:
-  - claude-sonnet-4.5: 빠르고 효율적인 추론
-  - claude-opus-4.5: 최고 수준의 분석 및 창의적 작업
+  - claude-sonnet-4.5: Fast and efficient reasoning.
+  - claude-opus-4.5: Top-tier analysis and creative tasks.
 
-#### 설정 방법
+#### Configuration
 
-~/.claude/settings.json에서 환경변수 설정:
+Set environment variables in ~/.claude/settings.json:
 ```json
 {
   "environment_variables": {
@@ -99,10 +99,10 @@ model: claude-opus-4.5 (선택사항)
 }
 ```
 
-#### 유효성 검사
-- apiProvider가 지정되면 model도 반드시 지정해야 함
-- 지정된 model이 해당 apiProvider에서 지원하는 모델인지 확인
-- 해당 provider의 API key 환경변수가 설정되어 있는지 확인
+#### Validation
+- If `apiProvider` is specified, `model` must also be specified.
+- Verify if the specified `model` is supported by the `apiProvider`.
+- Verify if the API key environment variable for the provider is set.
 
 ---
 
@@ -112,7 +112,7 @@ The user/agent wants a sanity check on their current approach.
 
 **Arguments provided**: $ARGUMENTS
 
-**Parsed Input**: 위 파라미터 형식에 따라 입력을 파싱하세요. 자연어 입력의 경우 문맥에서 goal, plan, uncertainties 등을 추론하세요.
+**Parsed Input**: Parse the input according to the parameter format above. For natural language input, infer goal, plan, uncertainties, etc., from the context.
 
 ## Your Role
 
@@ -218,4 +218,3 @@ Don't invent problems. Acknowledge it's well-thought-out and give approval to pr
 
 **If uncertainty is genuinely high:**
 Acknowledge the uncertainty and suggest ways to reduce it before proceeding.
-

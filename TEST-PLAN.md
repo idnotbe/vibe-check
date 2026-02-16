@@ -5,8 +5,7 @@ Prioritized roadmap for improving test infrastructure in this repo.
 ## Current State
 
 - **1 runnable test**: tests/validate_skill.sh (28 structural checks, all pass)
-- **1 dead test**: tests/api_provider.test.ts (TypeScript, no Node scaffolding)
-- **1 manual plan**: tests/test_scenarios.md (Korean, never executed)
+- **1 manual plan**: tests/test_scenarios.md (Not yet executed)
 - **No CI/CD**: No GitHub Actions or any automation
 - **No single-command entrypoint**: Each test must be discovered and run manually
 
@@ -49,14 +48,8 @@ jobs:
 
 ### P0.2: Resolve dead TypeScript test
 
-tests/api_provider.test.ts cannot run -- there is no package.json, tsconfig.json,
-or node_modules. Two options:
-
-- **Recommended: Delete it.** This is a prompt-only skill repo with no TypeScript
-  runtime. The test validates logic that only exists as prose in SKILL.md. Keeping
-  dead code signals false test coverage.
-- **Alternative: Scaffold Node.js.** Add package.json with ts-node/jest, tsconfig,
-  and wire into CI. Only do this if there is a committed need for TypeScript testing.
+Done. `tests/api_provider.test.ts` has been deleted. It was dead code with no
+Node.js scaffolding (no package.json, tsconfig.json, or node_modules).
 
 ### P0.3: Add testing documentation
 
@@ -87,21 +80,18 @@ Remaining option if the mismatch is still confusing:
 
 ### P1.2: Eliminate provider/model data duplication
 
-Provider and model lists are hardcoded in four places:
+Provider and model lists are hardcoded in three places:
 1. `.claude/skills/vibe-check/SKILL.md` (source of truth)
 2. `tests/validate_skill.sh` (hardcoded expected values)
-3. `tests/api_provider.test.ts` (hardcoded test data)
-4. `tests/test_scenarios.md` (hardcoded in manual test cases)
+3. `tests/test_scenarios.md` (hardcoded in manual test cases)
 
-If api_provider.test.ts is deleted (P0.2), this reduces to three places. Further
-improvement: make validate_skill.sh derive expected providers/models from SKILL.md
+Improvement: make validate_skill.sh derive expected providers/models from SKILL.md
 rather than hardcoding them.
 
 ### P1.3: Execute manual test scenarios
 
 tests/test_scenarios.md has a comprehensive test plan with an unchecked checklist.
-Run through it at least once and record results. Consider translating critical
-scenarios to English for broader contributor access.
+Run through it at least once and record results.
 
 ## P2 -- Nice to Have
 

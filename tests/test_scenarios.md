@@ -1,6 +1,6 @@
 # Vibe Check Test Scenarios
 
-이 문서는 vibe-check skill의 테스트 시나리오를 정의합니다.
+This document defines test scenarios for the vibe-check skill.
 
 ## 1. Parameter Validation Tests
 
@@ -45,8 +45,8 @@
 
 ```
 /vibe-check
-goal: 사용자 인증 기능 구현
-plan: OAuth2 + JWT 토큰 방식
+goal: Implement user authentication
+plan: OAuth2 + JWT token approach
 apiProvider: openai
 model: gpt-5.2-high
 ```
@@ -56,7 +56,7 @@ model: gpt-5.2-high
 ### 2.2 Natural Language Format
 
 ```
-/vibe-check OpenAI의 gpt-5.2-high 모델로 사용자 인증을 OAuth2로 구현하려고 합니다.
+/vibe-check I want to implement user auth with OAuth2 using OpenAI's gpt-5.2-high model.
 ```
 
 **Expected**: Parse goal and plan from context, extract apiProvider and model
@@ -65,11 +65,11 @@ model: gpt-5.2-high
 
 ```
 /vibe-check
-goal: REST API 설계
-plan: OpenAPI 스펙 기반
+goal: Design REST API
+plan: Based on OpenAPI spec
 apiProvider: anthropic
 model: claude-opus-4.5
-uncertainties: 버전 관리 전략
+uncertainties: Versioning strategy
 ```
 
 **Expected**: Successfully parse all specified parameters
@@ -83,8 +83,8 @@ Test: OpenAI GPT-5.2-High Feedback
 Input:
   apiProvider: openai
   model: gpt-5.2-high
-  goal: 대규모 데이터 처리 파이프라인 구축
-  plan: Apache Spark + Kafka 조합
+  goal: Build large-scale data processing pipeline
+  plan: Apache Spark + Kafka combination
 Expected:
   - Feedback considers GPT-5.2-High reasoning capabilities
   - Analysis reflects model's strength in complex problem solving
@@ -95,8 +95,8 @@ Test: OpenAI Codex-5.2-High Feedback
 Input:
   apiProvider: openai
   model: codex-5.2-high
-  goal: 레거시 코드 리팩토링
-  plan: 점진적 마이그레이션
+  goal: Refactor legacy codebase
+  plan: Incremental migration
 Expected:
   - Feedback leverages Codex's code-specific capabilities
   - Analysis includes code-level recommendations
@@ -109,8 +109,8 @@ Test: Google Gemini-3.0-Pro Feedback
 Input:
   apiProvider: google
   model: gemini-3.0-pro-preview
-  goal: 멀티모달 애플리케이션 개발
-  plan: Vision API + Text 통합
+  goal: Develop multimodal application
+  plan: Vision API + Text integration
 Expected:
   - Feedback considers Gemini's balanced performance
   - Cost-effective recommendations included
@@ -121,8 +121,8 @@ Test: Google Gemini-3.0-Flash Feedback
 Input:
   apiProvider: google
   model: gemini-3.0-flash-preview
-  goal: 간단한 챗봇 구현
-  plan: 템플릿 기반 응답
+  goal: Implement simple chatbot
+  plan: Template-based responses
 Expected:
   - Feedback acknowledges Flash's speed advantage
   - Recommendations suitable for simpler tasks
@@ -135,8 +135,8 @@ Test: Anthropic Claude-Sonnet-4.5 Feedback
 Input:
   apiProvider: anthropic
   model: claude-sonnet-4.5
-  goal: API 문서 자동 생성
-  plan: OpenAPI 스펙 파싱
+  goal: Auto-generate API documentation
+  plan: Parse OpenAPI spec
 Expected:
   - Feedback leverages Sonnet's efficiency
   - Quick iteration recommendations
@@ -147,8 +147,8 @@ Test: Anthropic Claude-Opus-4.5 Feedback
 Input:
   apiProvider: anthropic
   model: claude-opus-4.5
-  goal: 복잡한 시스템 아키텍처 설계
-  plan: 마이크로서비스 + 이벤트 드리븐
+  goal: Design complex system architecture
+  plan: Microservices + event-driven
 Expected:
   - Feedback leverages Opus's advanced analytical capabilities
   - Deep architectural insights and considerations

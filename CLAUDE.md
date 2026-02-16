@@ -11,8 +11,7 @@ act as a meta-mentor.
     .claude/skills/vibe-check/SKILL.md   # The skill prompt (core artifact)
     .claude-plugin/plugin.json            # Plugin manifest (v0.1.0)
     tests/validate_skill.sh               # Automated structural validator (28 checks)
-    tests/api_provider.test.ts            # DEAD CODE -- see Testing notes
-    tests/test_scenarios.md               # Manual test plan (Korean)
+    tests/test_scenarios.md               # Manual test plan
     README.md                             # User-facing documentation
     ARCHITECTURE.md                       # Architecture design document
     CLAUDE.md                             # This file -- Claude Code project instructions
@@ -31,11 +30,6 @@ act as a meta-mentor.
 - README clarifies the "Dependencies: None" claim with a footnote explaining
   that `required_environment` keys are metadata, not runtime dependencies.
   See TEST-PLAN.md P1.1 for the full discussion.
-- **SKILL.md is bilingual** (English and Korean). Structural elements (evaluation
-  framework, output format, core questions) are in English. Parameter descriptions,
-  input format examples, and configuration instructions are in Korean. This is a
-  known inconsistency with the English-only guideline below.
-- tests/test_scenarios.md is written in Korean.
 
 ## The apiProvider/model Feature
 
@@ -67,11 +61,7 @@ deprecated parameter absence, config examples, and provider-model mapping table.
 | File | Status | Notes |
 |------|--------|-------|
 | tests/validate_skill.sh | Runnable | 28 structural checks, bash |
-| tests/test_scenarios.md | Manual | Korean, never executed |
-| tests/api_provider.test.ts | Dead code | No package.json/tsconfig/node_modules |
-
-The TypeScript test cannot run. There is no Node.js scaffolding in this repo.
-It should be deleted or properly scaffolded (see TEST-PLAN.md P0).
+| tests/test_scenarios.md | Manual | Not yet executed |
 
 ### When Editing SKILL.md
 

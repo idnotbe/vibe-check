@@ -72,8 +72,7 @@ vibe-check/
     plugin.json              # Plugin manifest (v0.1.0)
   tests/
     validate_skill.sh        # Structural validator (28 checks)
-    api_provider.test.ts     # Dead code (no Node.js scaffolding)
-    test_scenarios.md        # Manual test plan (Korean)
+    test_scenarios.md        # Manual test plan
   ARCHITECTURE.md            # Architecture design document
   CLAUDE.md                  # Claude Code project instructions
   TEST-PLAN.md               # Test infrastructure roadmap
@@ -230,10 +229,6 @@ The tool helps identify these common pitfalls:
 | Misalignment | Solving different problem than asked | Re-read original request |
 | Overtooling | Adding many dependencies | Evaluate necessity of each |
 
-## Language Note
-
-The core SKILL.md prompt contains bilingual content (English and Korean). The skill's structural elements (evaluation framework, output format, core questions) are in English. Parameter descriptions, input format examples, and some configuration instructions within SKILL.md are in Korean, reflecting the original development context. Claude generally responds in the language you use for input, though this behavior is not explicitly enforced by SKILL.md.
-
 ## Troubleshooting
 
 **The skill does not appear after installation**
@@ -249,14 +244,8 @@ The core SKILL.md prompt contains bilingual content (English and Korean). The sk
 - The model must be from the supported list for the chosen provider (see table above)
 - The corresponding API key environment variable must be set in `~/.claude/settings.json`
 
-**Output is not in the expected language**
-- Claude generally responds in the language you use for input. If you write in English, feedback should be in English. However, since SKILL.md contains Korean instructions, occasional language mixing may occur.
-
 **Output looks the same with and without apiProvider/model**
 - This is expected. The `apiProvider`/`model` parameters influence how Claude frames its feedback but do not call external models. The difference in output may be subtle -- Claude incorporates the specified model's characteristics into its analysis rather than switching to a different model.
-
-**`npm test` or `npx jest` fails**
-- This is expected. The `tests/api_provider.test.ts` file is dead code with no Node.js scaffolding (no package.json or tsconfig.json). The only runnable test is `bash tests/validate_skill.sh`. See [Testing](#testing).
 
 ## Testing
 
@@ -276,8 +265,7 @@ provider-model mapping.
 | File | Type | Status |
 |------|------|--------|
 | tests/validate_skill.sh | Automated (bash) | Passes all 28 checks |
-| tests/test_scenarios.md | Manual plan | Korean, not yet executed |
-| tests/api_provider.test.ts | TypeScript | **Dead code** -- no Node.js scaffolding. Do not attempt to run. |
+| tests/test_scenarios.md | Manual plan | Not yet executed |
 
 See [TEST-PLAN.md](TEST-PLAN.md) for the full test infrastructure roadmap.
 
@@ -301,8 +289,6 @@ See [TEST-PLAN.md](TEST-PLAN.md) for the full test infrastructure roadmap.
 
 ### What Needs Help
 
-- Translating `tests/test_scenarios.md` from Korean to English
-- Resolving or deleting the dead `tests/api_provider.test.ts` file
 - Adding a GitHub Actions CI workflow (see [TEST-PLAN.md](TEST-PLAN.md) P0.1)
 
 ## Updating
