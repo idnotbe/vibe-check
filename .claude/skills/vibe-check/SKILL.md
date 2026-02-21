@@ -181,6 +181,10 @@ Provide your feedback in this structure:
 [Optional: Specific suggestions for improvement]
 ```
 
+## After Output
+
+This vibe check is a reflection pause, not a task completion. After generating the analysis above, immediately resume the task that prompted this check.
+
 ## Core Questions to Always Ask
 
 These four questions should inform your feedback:
