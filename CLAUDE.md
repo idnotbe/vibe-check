@@ -15,7 +15,8 @@ act as a meta-mentor.
     README.md                             # User-facing documentation
     ARCHITECTURE.md                       # Architecture design document
     CLAUDE.md                             # This file -- Claude Code project instructions
-    TEST-PLAN.md                          # Test infrastructure roadmap
+    action-plans/                         # Action plans (실행 계획 관리)
+    research/                             # Research materials
     LICENSE                               # MIT License
     .gitignore                            # Git ignore rules
 
@@ -29,7 +30,7 @@ act as a meta-mentor.
   feedback. No external models are called.
 - README clarifies the "Dependencies: None" claim with a footnote explaining
   that `required_environment` keys are metadata, not runtime dependencies.
-  See TEST-PLAN.md P1.1 for the full discussion.
+  See action-plans/test-infrastructure-roadmap.md P1.1 for the full discussion.
 
 ## The apiProvider/model Feature
 
@@ -75,7 +76,20 @@ or parameters, update validate_skill.sh to match.
 - Do not add Node.js tooling unless there is a clear, committed need.
 - All committed content should be in English.
 
+## Action Plans
+
+실행 계획 파일은 `action-plans/`에 있다. 각 파일 상단에 YAML frontmatter로 상태를 관리한다.
+
+- `status`: not-started | active | blocked | done
+- `progress`: 현재 진행 상태 (자유 텍스트)
+
+**규칙:**
+- plan 파일 작업 시작/완료 시 frontmatter의 status와 progress를 업데이트할 것
+- 완료된 plan은 `action-plans/_done/`으로 이동 (선택)
+- `action-plans/_ref/`는 참고/역사적 문서
+
 ## No CI
 
-There is no CI/CD pipeline. See TEST-PLAN.md P0 for the recommendation to add
-a GitHub Actions workflow that runs validate_skill.sh on PRs.
+There is no CI/CD pipeline. See action-plans/test-infrastructure-roadmap.md P0
+for the recommendation to add a GitHub Actions workflow that runs
+validate_skill.sh on PRs.

@@ -24,7 +24,8 @@ vibe-check/
     test_scenarios.md            # Manual test plan
   ARCHITECTURE.md                # Architecture design document (this file)
   CLAUDE.md                      # Claude Code project instructions
-  TEST-PLAN.md                   # Test infrastructure roadmap
+  action-plans/                  # Action plans (실행 계획 관리)
+  research/                      # Research materials
   README.md                      # User-facing documentation
   LICENSE                        # MIT License
   .gitignore                     # Git ignore rules
@@ -145,7 +146,7 @@ And limitations:
 
 - `tests/test_scenarios.md`: Manual test plan. Has never been executed.
 
-See TEST-PLAN.md for the full test infrastructure roadmap.
+See action-plans/test-infrastructure-roadmap.md for the full test infrastructure roadmap.
 
 ---
 

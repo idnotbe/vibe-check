@@ -75,7 +75,8 @@ vibe-check/
     test_scenarios.md        # Manual test plan
   ARCHITECTURE.md            # Architecture design document
   CLAUDE.md                  # Claude Code project instructions
-  TEST-PLAN.md               # Test infrastructure roadmap
+  action-plans/              # Action plans (실행 계획 관리)
+  research/                  # Research materials
   README.md                  # This file
   LICENSE                    # MIT License
   .gitignore                 # Git ignore rules
@@ -267,7 +268,7 @@ provider-model mapping.
 | tests/validate_skill.sh | Automated (bash) | Passes all 28 checks |
 | tests/test_scenarios.md | Manual plan | Not yet executed |
 
-See [TEST-PLAN.md](TEST-PLAN.md) for the full test infrastructure roadmap.
+See [test-infrastructure-roadmap.md](action-plans/test-infrastructure-roadmap.md) for the full test infrastructure roadmap.
 
 ## Contributing
 
@@ -289,7 +290,7 @@ See [TEST-PLAN.md](TEST-PLAN.md) for the full test infrastructure roadmap.
 
 ### What Needs Help
 
-- Adding a GitHub Actions CI workflow (see [TEST-PLAN.md](TEST-PLAN.md) P0.1)
+- Adding a GitHub Actions CI workflow (see [test-infrastructure-roadmap.md](action-plans/test-infrastructure-roadmap.md) P0.1)
 
 ## Updating
 
