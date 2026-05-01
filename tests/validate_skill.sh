@@ -6,7 +6,9 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_FILE="$SCRIPT_DIR/../.claude/skills/vibe-check/SKILL.md"
+# SKILL_FILE is overridable via environment so test fixtures (e.g. CRLF/BOM
+# variants) can be validated without touching the canonical file in-tree.
+SKILL_FILE="${SKILL_FILE:-$SCRIPT_DIR/../.claude/skills/vibe-check/SKILL.md}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -54,12 +56,24 @@ echo "2. Validating frontmatter..."
 # frontmatter into $FRONTMATTER so the name/description checks below are
 # bound to the frontmatter block instead of grepping the whole file (which
 # could be satisfied by smuggled body markdown).
+#
+# Tolerance: a UTF-8 BOM on line 1 is stripped before matching, and the
+# `---` delimiters are matched with `[[:space:]]*$` so CRLF (`\r`) line
+# endings and trailing whitespace from Windows checkouts or editors that
+# auto-trim differently do not cause a false FAIL. Captured key:value
+# lines also have a trailing `\r` stripped before printing so the
+# downstream name/description equality checks remain CRLF-agnostic.
 if FRONTMATTER=$(awk '
-    NR == 1 && $0 != "---" { exit 1 }
+    # POSIX octal byte escapes (\357\273\277 = EF BB BF) instead of hex (\xEF…)
+    # because POSIX awk mandates octal escapes inside ERE while hex byte escapes
+    # are implementation-defined; octal gives identical, spec-guaranteed
+    # behavior across gawk/mawk/BusyBox awk.
+    NR == 1 { sub(/^\357\273\277/, "") }
+    NR == 1 && !match($0, /^---[[:space:]]*$/) { exit 1 }
     NR == 1 { in_fm=1; next }
-    in_fm && /^---$/ { closed=1; exit 0 }
-    in_fm && /^[a-zA-Z_-]+:/ { print; next }
-    in_fm && /^[[:space:]]*$/ { print; next }
+    in_fm && /^---[[:space:]]*$/ { closed=1; exit 0 }
+    in_fm && /^[a-zA-Z_-]+:/ { sub(/\r$/, ""); print; next }
+    in_fm && /^[[:space:]]*$/ { sub(/\r$/, ""); print; next }
     in_fm { exit 1 }
     END { exit !closed }
 ' "$SKILL_FILE"); then
@@ -73,16 +87,39 @@ fi
 # would yield a multi-line capture that doesn't equal the expected single line,
 # preventing a YAML "last value wins" bypass where the loaded name differs
 # from what the validator saw.
-if [ "$(echo "$FRONTMATTER" | grep '^name:')" = "name: vibe-check" ]; then
+#
+# `printf "%s\n"` (not `echo`) is used to pipe $FRONTMATTER into grep so the
+# variable's content cannot be misinterpreted as echo options if a future
+# frontmatter line begins with `-e`/`-n`/`-E`. Currently the awk filter
+# (`^[a-zA-Z_-]+:`) forbids leading dashes, but printf removes the latent
+# coupling.
+if [ "$(printf "%s\n" "$FRONTMATTER" | grep '^name:')" = "name: vibe-check" ]; then
     pass "Skill name defined correctly"
 else
     fail "Skill name not defined, incorrect, or duplicated"
 fi
 
-if [ "$(echo "$FRONTMATTER" | grep -c '^description:')" -eq 1 ]; then
-    pass "Description defined"
-else
+# Two-step description check (kept separate so failure messages distinguish
+# "duplicated" from "empty value"):
+#   1. Exactly one `^description:` line — guards against duplicate keys
+#      bypassing via YAML "last value wins".
+#   2. That line has at least one non-whitespace char after `description:` —
+#      rejects `description:`, `description: `, `description:    `, all of
+#      which would otherwise load a syntactically-valid but semantically
+#      empty skill.
+# The non-empty regex narrows the "first non-whitespace char" class to
+# `[^"'#[:space:]]` so YAML-semantic-empty inputs are rejected: `description: ""`
+# and `description: ''` (quoted empty scalars; quoted scalars are a separately
+# rejected schema policy, see follow-up #4) and `description: # comment` (the
+# first non-space token `#` starts a YAML comment, so the actual value is empty).
+# Legitimate values like `description: foo # trailing comment` still pass because
+# their first non-space char is alphanumeric.
+if [ "$(printf "%s\n" "$FRONTMATTER" | grep -c '^description:')" -ne 1 ]; then
     fail "Description not defined or duplicated"
+elif ! printf "%s\n" "$FRONTMATTER" | grep -qE '^description:[[:space:]]+[^"'\''#[:space:]]'; then
+    fail "Description value is empty"
+else
+    pass "Description defined"
 fi
 
 # Test 3: Check parameter documentation
