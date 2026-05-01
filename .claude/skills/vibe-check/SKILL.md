@@ -150,6 +150,8 @@ Provide your feedback in this structure:
 [One sentence stating which step of the original task you will resume immediately after this block. This is mandatory — never omit it.]
 ```
 
+**The closing ``` above is not a stop signal.** The schema is satisfied, but your turn is not. Immediately follow this block with the concrete step named in `### Next Action` — the actual tool call, file edit, or targeted question, not a narration of what you are about to do. Stopping after `### Next Action` constitutes a failure of this skill.
+
 ## Core Questions to Always Ask
 
 These four questions should inform your feedback:
