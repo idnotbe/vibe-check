@@ -46,34 +46,43 @@ fi
 # Test 2: Check frontmatter
 echo ""
 echo "2. Validating frontmatter..."
-# Frontmatter must use the flat shape Claude Code skills require: line 1 is
-# "---", every line until the closing "---" is blank or a "key: ..." line
-# (no lists, multi-line values, or comments), and the closer appears before
-# any other content. Awk used because line-count bounds can be fooled when
-# body horizontal rules shift after frontmatter edits.
-if awk '
-    NR == 1 { if ($0 != "---") { bad=1; exit } ; next }
-    /^---$/ { closed=1; exit }
-    /^[a-zA-Z_-]+:/ { next }
-    /^[[:space:]]*$/ { next }
-    { bad=1; exit }
-    END { if (bad || !closed) exit 1 }
-' "$SKILL_FILE"; then
+# Frontmatter must use this repo's flat key:value shape: line 1 is "---",
+# every line until the closing "---" is blank or a "key: ..." line (no
+# lists, multi-line values, or comments), and the closer appears before any
+# other content. Awk used because line-count bounds can be fooled when body
+# horizontal rules shift after frontmatter edits. The same awk extracts the
+# frontmatter into $FRONTMATTER so the name/description checks below are
+# bound to the frontmatter block instead of grepping the whole file (which
+# could be satisfied by smuggled body markdown).
+if FRONTMATTER=$(awk '
+    NR == 1 && $0 != "---" { exit 1 }
+    NR == 1 { in_fm=1; next }
+    in_fm && /^---$/ { closed=1; exit 0 }
+    in_fm && /^[a-zA-Z_-]+:/ { print; next }
+    in_fm && /^[[:space:]]*$/ { print; next }
+    in_fm { exit 1 }
+    END { exit !closed }
+' "$SKILL_FILE"); then
     pass "Frontmatter delimiters found"
 else
     fail "Frontmatter delimiters not found"
+    FRONTMATTER=""
 fi
 
-if grep -q "^name: vibe-check$" "$SKILL_FILE"; then
+# Equality (not grep -q) catches duplicate `name:` keys: a second `name: foo`
+# would yield a multi-line capture that doesn't equal the expected single line,
+# preventing a YAML "last value wins" bypass where the loaded name differs
+# from what the validator saw.
+if [ "$(echo "$FRONTMATTER" | grep '^name:')" = "name: vibe-check" ]; then
     pass "Skill name defined correctly"
 else
-    fail "Skill name not defined or incorrect"
+    fail "Skill name not defined, incorrect, or duplicated"
 fi
 
-if grep -q "^description:" "$SKILL_FILE"; then
+if [ "$(echo "$FRONTMATTER" | grep -c '^description:')" -eq 1 ]; then
     pass "Description defined"
 else
-    fail "Description not defined"
+    fail "Description not defined or duplicated"
 fi
 
 # Test 3: Check parameter documentation
