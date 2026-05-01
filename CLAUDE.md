@@ -9,8 +9,8 @@ act as a meta-mentor.
 ## Repo Structure
 
     .claude/skills/vibe-check/SKILL.md   # The skill prompt (core artifact)
-    .claude-plugin/plugin.json            # Plugin manifest (v0.1.0)
-    tests/validate_skill.sh               # Automated structural validator (28 checks)
+    .claude-plugin/plugin.json            # Plugin manifest (v0.2.0)
+    tests/validate_skill.sh               # Automated structural validator (17 checks)
     tests/test_scenarios.md               # Manual test plan
     README.md                             # User-facing documentation
     ARCHITECTURE.md                       # Architecture design document
@@ -23,26 +23,11 @@ act as a meta-mentor.
 ## Key Facts
 
 - **No runtime dependencies.** The plugin is prompt-only; nothing executes.
-- SKILL.md declares `required_environment` (3 API keys). These are metadata for
-  the `apiProvider`/`model` feature -- this repo makes no outbound API calls.
-  The `apiProvider` and `model` parameters let users request feedback that
-  considers a specific model's characteristics, but Claude itself generates all
-  feedback. No external models are called.
-- README clarifies the "Dependencies: None" claim with a footnote explaining
-  that `required_environment` keys are metadata, not runtime dependencies.
-  See action-plans/test-infrastructure-roadmap.md P1.1 for the full discussion.
-
-## The apiProvider/model Feature
-
-SKILL.md (lines 38-106) defines an `apiProvider`/`model` system supporting 3
-providers (openai, google, anthropic) and 6 models. Key points:
-
-- **These do NOT trigger external API calls.** Claude adjusts its feedback style
-  to consider the specified model's characteristics.
-- Parameters: `apiProvider` (openai|google|anthropic) and `model` (provider-specific)
-- If `apiProvider` is specified, `model` must also be specified; model must match provider
-- API key env vars are validated as metadata but never used for actual API calls
-- Configuration via `~/.claude/settings.json` `environment_variables`
+- The plugin makes no outbound API calls and requires no environment variables.
+- The legacy `apiProvider`/`model` parameter system (v0.1.x) was removed in
+  v0.2.0. SKILL.md retains a one-line compatibility note: legacy keys are
+  accepted but ignored. The validator's negative checks (Test 5) guard against
+  silent reintroduction.
 
 ## Testing
 
@@ -53,21 +38,23 @@ All automated tests live in this repo.
     bash tests/validate_skill.sh
 
 This is the only runnable test. It validates SKILL.md structure: file existence,
-frontmatter, required_environment, API provider docs, model docs, parameter docs,
-deprecated parameter absence, config examples, and provider-model mapping table.
-28 checks across 9 test groups; exit code 0 on success, 1 on failure.
+frontmatter, parameter docs, deprecated parameter absence, and negative checks
+guarding against silent reintroduction of the removed `apiProvider`/`model`
+feature. 17 checks (10 positive + 7 negative); exit code 0 on success, 1 on failure.
 
 ### Test File Status
 
 | File | Status | Notes |
 |------|--------|-------|
-| tests/validate_skill.sh | Runnable | 28 structural checks, bash |
+| tests/validate_skill.sh | Runnable | 17 structural checks, bash |
 | tests/test_scenarios.md | Manual | Not yet executed |
 
 ### When Editing SKILL.md
 
-Always run the validator after changes. If you add/remove providers, models,
-or parameters, update validate_skill.sh to match.
+Always run the validator after changes. If you add/remove parameters, update
+validate_skill.sh to match. If you change SKILL.md frontmatter
+(`description:`, `argument-hint:`), also update the verbatim YAML block in
+ARCHITECTURE.md (under "Skill Specification → YAML Frontmatter").
 
 ## Development Guidelines
 
@@ -85,7 +72,7 @@ or parameters, update validate_skill.sh to match.
 
 **규칙:**
 - plan 파일 작업 시작/완료 시 frontmatter의 status와 progress를 업데이트할 것
-- 완료된 plan은 `action-plans/_done/`으로 이동 (선택)
+- 완료된 plan은 `action-plans/_done/`으로 이동
 - `action-plans/_ref/`는 참고/역사적 문서
 
 ## No CI

@@ -1,6 +1,6 @@
 ---
 status: active
-progress: "P0 완료 (CI 제외), P1 일부 해결, P2 일부 완료"
+progress: "P0 완료 (CI 제외); P1.1 해결됨 (apiProvider/model 제거로 contradiction 소멸, v0.2.0); P1.2 obsolete; P1.3 범위 축소; P2 일부 완료"
 ---
 
 # Vibe Check -- Test Plan
@@ -9,27 +9,25 @@ Prioritized roadmap for improving test infrastructure in this repo.
 
 ## Current State
 
-- **1 runnable test**: tests/validate_skill.sh (28 structural checks, all pass)
+- **1 runnable test**: tests/validate_skill.sh (17 structural checks, all pass)
 - **1 manual plan**: tests/test_scenarios.md (Not yet executed)
 - **No CI/CD**: No GitHub Actions or any automation
 - **No single-command entrypoint**: Each test must be discovered and run manually
 
 ### What validate_skill.sh Checks
 
-The validator performs 28 checks across 9 test groups:
+The validator performs 17 checks across 5 test groups (10 positive + 7 negative).
+The negative checks were added in v0.2.0 alongside the removal of the
+`apiProvider`/`model` feature, to guard against silent reintroduction.
 
-| # | Test Group | Checks | What It Validates |
-|---|-----------|--------|-------------------|
-| 1 | Existence | 1 | SKILL.md file exists |
-| 2 | Frontmatter | 3 | `---` delimiters present, `name: vibe-check`, `description:` field |
-| 3 | Required Environment | 4 | `required_environment:` section exists, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY` listed |
-| 4 | API Providers | 3 | Provider names in backticks: `openai`, `google`, `anthropic` |
-| 5 | Models | 6 | Model names present: `gpt-5.2-high`, `codex-5.2-high`, `gemini-3.0-pro-preview`, `gemini-3.0-flash-preview`, `claude-sonnet-4.5`, `claude-opus-4.5` |
-| 6 | Parameters | 7 | Parameter names in backticks: `goal`, `plan`, `progress`, `uncertainties`, `taskContext`, `apiProvider`, `model` |
-| 7 | Deprecated Params | 1 | `modelOverride` is absent |
-| 8 | Config Examples | 2 | `environment_variables` reference present (pass/fail), `settings.json` reference present (pass/warn) |
-| 9 | Provider-Model Mapping | 1 | Mapping table header (`\| Provider \| Models \| Environment Variable \|`) present |
-| | **Total** | **28** | |
+| # | Test Group | Kind | Checks | What It Validates |
+|---|-----------|------|--------|-------------------|
+| 1 | Existence | positive | 1 | SKILL.md file exists |
+| 2 | Frontmatter | positive | 3 | `---` delimiters present, `name: vibe-check`, `description:` field |
+| 3 | Parameters | positive | 5 | Parameter names in backticks: `goal`, `plan`, `progress`, `uncertainties`, `taskContext` |
+| 4 | Deprecated Params | negative | 1 | `modelOverride` absent |
+| 5 | Legacy Feature Absence | negative | 7 | `required_environment:` frontmatter field absent; `apiProvider` and `model` parameter-table rows absent (anchored to `^\| ` so the legacy compat blockquote is allowed); provider-model mapping table header absent; legacy API key names (`OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`) absent |
+| | **Total** | | **17** | (10 positive + 7 negative) |
 
 ## P0 -- Critical
 
@@ -66,36 +64,29 @@ Node.js scaffolding (no package.json, tsconfig.json, or node_modules).
 
 ### P1.1: Fix README vs SKILL.md contract mismatch
 
-README says "Dependencies: None" (comparison table). SKILL.md declares
-`required_environment` with 3 API keys (OPENAI_API_KEY, GEMINI_API_KEY,
-ANTHROPIC_API_KEY).
+**Status: Resolved (v0.2.0).**
 
-The semantic conflict: the SKILL.md field name `required_environment` implies
-these keys are required, but the plugin makes no API calls and works without
-them for basic usage. The keys are metadata for the `apiProvider`/`model`
-feature documentation.
-
-Resolution applied: README comparison table now has a footnote clarifying that
-`required_environment` keys are metadata for provider/model documentation. A
-dedicated section ("Important: No External API Calls") explains the situation.
-
-Remaining option if the mismatch is still confusing:
-- Remove `required_environment` from SKILL.md if keys are truly never needed
-  (would require updating validate_skill.sh to remove checks 3.1-3.4).
+The original mismatch — README claiming "Dependencies: None" while SKILL.md
+declared `required_environment` with 3 API keys — was eliminated by removing
+`required_environment` from SKILL.md entirely (the "remaining option" listed
+in the prior version of this section). validate_skill.sh's environment-key
+checks were dropped and replaced with negative checks that guard against
+reintroduction.
 
 ### P1.2: Eliminate provider/model data duplication
 
-Provider and model lists are hardcoded in three places:
-1. `.claude/skills/vibe-check/SKILL.md` (source of truth)
-2. `tests/validate_skill.sh` (hardcoded expected values)
-3. `tests/test_scenarios.md` (hardcoded in manual test cases)
+**Status: Obsolete (v0.2.0).**
 
-Improvement: make validate_skill.sh derive expected providers/models from SKILL.md
-rather than hardcoding them.
+The `apiProvider`/`model` feature was removed in v0.2.0; no provider or model
+lists remain in SKILL.md, validate_skill.sh, or test_scenarios.md to deduplicate.
 
 ### P1.3: Execute manual test scenarios
 
-tests/test_scenarios.md has a comprehensive test plan with an unchecked checklist.
+**Status: Scope reduced (v0.2.0).** The provider/model scenario sections were
+removed from test_scenarios.md alongside the feature; the surviving plan is
+shorter but still unchecked.
+
+tests/test_scenarios.md has the remaining test plan with an unchecked checklist.
 Run through it at least once and record results.
 
 ## P2 -- Nice to Have

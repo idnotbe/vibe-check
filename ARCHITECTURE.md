@@ -20,7 +20,7 @@ vibe-check/
   .claude-plugin/
     plugin.json                  # Plugin manifest (name, version, skills path, author, etc.)
   tests/
-    validate_skill.sh            # Structural validator (28 checks across 9 test groups)
+    validate_skill.sh            # Structural validator (17 checks: 10 positive + 7 negative)
     test_scenarios.md            # Manual test plan
   ARCHITECTURE.md                # Architecture design document (this file)
   CLAUDE.md                      # Claude Code project instructions
@@ -31,7 +31,7 @@ vibe-check/
   .gitignore                     # Git ignore rules
 ```
 
-The `.claude-plugin/plugin.json` manifest defines plugin metadata (name: `vibe-check`, version: `0.1.0`, skills path, author, homepage, repository, license, keywords) for plugin distribution. The `.claude/skills/vibe-check/SKILL.md` file is the sole functional artifact.
+The `.claude-plugin/plugin.json` manifest defines plugin metadata (name: `vibe-check`, version: `0.2.0`, skills path, author, homepage, repository, license, keywords) for plugin distribution. The `.claude/skills/vibe-check/SKILL.md` file is the sole functional artifact.
 
 ---
 
@@ -45,14 +45,10 @@ The `.claude-plugin/plugin.json` manifest defines plugin metadata (name: `vibe-c
 ```yaml
 name: vibe-check
 description: Metacognitive sanity check for agent plans. Use before irreversible actions, when uncertainty is high, or when complexity is escalating. Helps prevent tunnel vision, over-engineering, and goal misalignment.
-argument-hint: goal: [goal] plan: [plan] apiProvider: [openai|google|anthropic] model: [model] (or free-form text)
-required_environment:
-  - OPENAI_API_KEY
-  - GEMINI_API_KEY
-  - ANTHROPIC_API_KEY
+argument-hint: goal: [goal] plan: [plan] (free-form text also works)
 ```
 
-Note: The above YAML frontmatter is reproduced verbatim from SKILL.md. `required_environment` is metadata for provider/model documentation. The plugin makes no outbound API calls and functions without these keys for basic usage.
+Note: The above YAML frontmatter is reproduced verbatim from SKILL.md. The plugin makes no outbound API calls and requires no environment variables.
 
 **Core Capabilities -- 4-Dimension Evaluation:**
 1. **Situational Analysis**: Nature of the problem, appropriateness of approach
@@ -80,29 +76,10 @@ Note: The above YAML frontmatter is reproduced verbatim from SKILL.md. `required
 | `goal` | Yes | What the user is trying to accomplish |
 | `plan` | Yes | Detailed strategy or approach |
 | `progress` | No | Current progress -- work completed so far |
-| `uncertainties` | No | Concerns or unknowns |
+| `uncertainties` | No | Concerns or unknowns (comma-separated or multi-line) |
 | `taskContext` | No | Background context (tech stack, constraints) |
-| `apiProvider` | No | Provider: `openai`, `google`, or `anthropic` |
-| `model` | No | Model name (must match chosen provider) |
 
-### API Provider and Model Architecture
-
-The `apiProvider` and `model` parameters allow users to request feedback that considers a specific model's characteristics. **These do not trigger external API calls.** Claude remains the model generating feedback -- it incorporates knowledge of the specified model's strengths into its analysis.
-
-**Supported Providers and Models:**
-
-| Provider | Models | Environment Variable |
-|----------|--------|---------------------|
-| `openai` | `gpt-5.2-high`, `codex-5.2-high` | `OPENAI_API_KEY` |
-| `google` | `gemini-3.0-pro-preview`, `gemini-3.0-flash-preview` | `GEMINI_API_KEY` |
-| `anthropic` | `claude-sonnet-4.5`, `claude-opus-4.5` | `ANTHROPIC_API_KEY` |
-
-**Validation Rules:**
-- If `apiProvider` is specified, `model` must also be specified
-- The model must be supported by the chosen provider
-- The corresponding API key environment variable must be configured
-
-**Configuration** is done via `~/.claude/settings.json` (see README for example).
+> Legacy `apiProvider` and `model` keys (v0.1.x) are accepted but ignored. See SKILL.md.
 
 ---
 
@@ -121,8 +98,7 @@ This is an intentional trade-off with advantages:
 - More consistent feedback quality
 
 And limitations:
-- No genuine multi-model perspective (Claude simulates model awareness)
-- Feedback is always from a single model, regardless of `apiProvider`/`model` settings
+- No genuine multi-model perspective; feedback is always from Claude
 
 ---
 
@@ -130,17 +106,13 @@ And limitations:
 
 ### Structural Validation
 
-`tests/validate_skill.sh` performs 28 automated checks across 9 test groups:
+`tests/validate_skill.sh` performs 17 automated checks across 5 test groups (10 positive + 7 negative):
 
-1. **Existence**: SKILL.md file exists
-2. **Frontmatter**: Delimiters (`---`), name (`vibe-check`), description present
-3. **Required Environment**: Section exists, 3 API keys listed
-4. **API Providers**: 3 provider names documented (`openai`, `google`, `anthropic`)
-5. **Models**: 6 model names documented
-6. **Parameters**: 7 parameter names documented (`goal`, `plan`, `progress`, `uncertainties`, `taskContext`, `apiProvider`, `model`)
-7. **Deprecated Parameters**: `modelOverride` absent
-8. **Configuration Examples**: `environment_variables` reference present (pass/fail), `settings.json` reference present (pass/warn)
-9. **Provider-Model Mapping**: Mapping table header present
+1. **Existence** (1 positive): SKILL.md file exists
+2. **Frontmatter** (3 positive): Delimiters (`---`), name (`vibe-check`), description present
+3. **Parameters** (5 positive): Parameter names documented (`goal`, `plan`, `progress`, `uncertainties`, `taskContext`)
+4. **Deprecated Parameters** (1 negative): `modelOverride` absent
+5. **Legacy Feature Absence** (7 negative): Guards against silent reintroduction of the removed `apiProvider`/`model` feature -- `required_environment:` frontmatter field absent, `apiProvider` and `model` parameter-table rows absent, provider-model mapping table header absent, and the three legacy API key names (`OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`) absent
 
 ### Other Test Files
 
@@ -161,12 +133,12 @@ For users migrating from the MCP server ([PV-Bhat/vibe-check-mcp-server](https:/
 Key differences after migration:
 - External model calls are replaced by Claude's own meta-analysis
 - No npm dependencies or external processes needed
-- API keys are optional metadata, not runtime requirements
+- No API key environment is required; legacy `apiProvider`/`model` keys in invocations are accepted but ignored
 
 ---
 
 ## Version Considerations
 
-- Plugin version: 0.1.0 (defined in `.claude-plugin/plugin.json`)
+- Plugin version: 0.2.0 (defined in `.claude-plugin/plugin.json`)
 - Original MCP server reference: [PV-Bhat/vibe-check-mcp-server](https://github.com/PV-Bhat/vibe-check-mcp-server)
 - Specification: [Agent Skills](https://agentskills.io) standard with Claude Code extensions
