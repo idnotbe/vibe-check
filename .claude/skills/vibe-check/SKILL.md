@@ -71,6 +71,8 @@ Provide metacognitive feedback that:
 3. Suggests simpler alternatives when applicable
 4. Validates good approaches when warranted
 
+Vibe check is metacognitive scaffolding for the *ongoing* task — not a standalone deliverable. The output below is consumed by you as feedback, after which you continue the original work.
+
 ## Evaluation Framework
 
 Analyze the plan across these four dimensions:
@@ -104,6 +106,21 @@ If needed, provide:
 - Simpler alternative approaches
 - Questions to help refocus
 
+## Continuation Requirement (read before generating output)
+
+The vibe check output below is **not the end of your turn**. It is internal feedback that you generate, consume, and act on within the same response.
+
+After emitting the output block:
+
+- **Do not stop.** Do not wait for the user to acknowledge the feedback.
+- **Do not ask** "should I proceed?" — the Recommendation line already answered that.
+- **Continue the original task immediately** in the same turn:
+  - Recommendation = "Proceed as planned" → execute the next step of the original plan.
+  - Recommendation = "Proceed with adjustments" → apply the adjustments, then execute the next step.
+  - Recommendation = "Pause and rethink" → restate the revised understanding and then take the next concrete step (e.g., a clarifying tool call or a single targeted question), not silence.
+
+The only exception: if the original input had **no goal/plan** (Special Cases below), ask the user for those — that question *is* the next step.
+
 ## Output Format
 
 Provide your feedback in this structure:
@@ -124,15 +141,14 @@ Provide your feedback in this structure:
 [If applicable: Which common pitfall patterns might be at play?]
 
 ### Recommendation
-[Clear guidance: proceed, adjust, or reconsider]
+[One of: "Proceed as planned", "Proceed with adjustments: <what to change>", or "Pause and rethink: <what's unclear>". Always phrased as a continuation directive, never as a stop instruction.]
 
 ### If Adjusting
 [Optional: Specific suggestions for improvement]
+
+### Next Action
+[One sentence stating which step of the original task you will resume immediately after this block. This is mandatory — never omit it.]
 ```
-
-## After Output
-
-This vibe check is a reflection pause, not a task completion. After generating the analysis above, immediately resume the task that prompted this check.
 
 ## Core Questions to Always Ask
 
@@ -167,7 +183,7 @@ Ask the user to describe:
 - Any concerns they have
 
 **If the plan looks solid:**
-Don't invent problems. Acknowledge it's well-thought-out and give approval to proceed.
+Don't invent problems. Acknowledge it's well-thought-out, set Recommendation to "Proceed as planned", and continue executing the original plan in the same turn.
 
 **If uncertainty is genuinely high:**
 Acknowledge the uncertainty and suggest ways to reduce it before proceeding.

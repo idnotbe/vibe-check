@@ -108,9 +108,29 @@ model: claude-opus-4.5
 
 **Expected**: Output is generated normally per the Output Format. The `apiProvider` and `model` lines are silently ignored (no error about unknown parameters, no special handling). This verifies the legacy compatibility note in SKILL.md.
 
+## 5. Continuation Behavior
+
+### 5.1 Vibe Check Mid-Task
+
+Invoke `/vibe-check` during an in-progress task (e.g., user asked Claude to refactor a function; Claude pauses to vibe-check the refactor strategy).
+
+**Expected**:
+- Output contains a non-empty `### Next Action` line.
+- Recommendation line is phrased as a continuation directive ("Proceed as planned", "Proceed with adjustments: ...", or "Pause and rethink: ..."), not a bare verb like "proceed" or "reconsider".
+- After the output block, Claude immediately performs the next step of the refactor (tool call, code edit, or follow-up question) within the same turn — does not stop and wait for user input.
+
+### 5.2 "Pause and Rethink" Recommendation
+
+Invoke `/vibe-check` on a plan that has clear flaws (e.g., proposes deleting prod DB to fix a typo).
+
+**Expected**:
+- Recommendation is `"Pause and rethink: <reason>"`.
+- Claude does not stop. It restates the revised understanding and either asks one targeted clarifying question or proposes a corrected next step in the same turn.
+
 ## Test Execution Checklist
 
 - [ ] All input format tests produce structured feedback
 - [ ] Optional parameter scenarios show the parameter influencing the feedback
 - [ ] Edge case prompts route through the Special Cases section as documented
 - [ ] Legacy `apiProvider`/`model` keys do not produce errors and do not change output structure
+- [ ] Continuation Behavior tests confirm Claude resumes the original task in the same turn after the vibe-check output
