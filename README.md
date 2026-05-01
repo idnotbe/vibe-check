@@ -152,13 +152,18 @@ The skill provides structured feedback in this format:
 [If applicable: Which common pitfall patterns might be at play?]
 
 ### Recommendation
-[Clear guidance: proceed, adjust, or reconsider]
+[One of: "Proceed as planned", "Proceed with adjustments: <what to change>", or "Pause and rethink: <what's unclear>". Always phrased as a continuation directive, never as a stop instruction.]
 
 ### If Adjusting
 [Optional: Specific suggestions for improvement]
+
+### Next Action
+[One sentence stating which step of the original task you will resume immediately after this block. This is mandatory — never omit it.]
 ```
 
 The **Pattern Watch** section references patterns from the table below. If no concerning patterns are detected, this section may confirm the plan looks solid.
+
+The vibe check is metacognitive scaffolding, not a deliverable: Claude generates the block above and then continues the original task in the same turn, using the **Recommendation** and **Next Action** lines as a self-directive rather than waiting for user acknowledgement.
 
 ## When to Use
 
