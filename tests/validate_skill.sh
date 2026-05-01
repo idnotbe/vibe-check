@@ -17,7 +17,6 @@ NC='\033[0m' # No Color
 # Counters
 PASS=0
 FAIL=0
-WARN=0
 
 # Test functions
 pass() {
@@ -28,11 +27,6 @@ pass() {
 fail() {
     echo -e "${RED}✗ FAIL${NC}: $1"
     FAIL=$((FAIL + 1))
-}
-
-warn() {
-    echo -e "${YELLOW}⚠ WARN${NC}: $1"
-    WARN=$((WARN + 1))
 }
 
 echo "========================================"
@@ -70,58 +64,10 @@ else
     fail "Description not defined"
 fi
 
-# Test 3: Check required_environment
+# Test 3: Check parameter documentation
 echo ""
-echo "3. Checking required_environment..."
-if grep -q "^required_environment:" "$SKILL_FILE"; then
-    pass "required_environment section exists"
-else
-    fail "required_environment section not found"
-fi
-
-for key in "OPENAI_API_KEY" "GEMINI_API_KEY" "ANTHROPIC_API_KEY"; do
-    if grep -q "  - $key" "$SKILL_FILE"; then
-        pass "$key listed in required_environment"
-    else
-        fail "$key not listed in required_environment"
-    fi
-done
-
-# Test 4: Check API providers documentation
-echo ""
-echo "4. Checking API provider documentation..."
-for provider in "openai" "google" "anthropic"; do
-    if grep -qi "\`$provider\`" "$SKILL_FILE"; then
-        pass "Provider '$provider' documented"
-    else
-        fail "Provider '$provider' not documented"
-    fi
-done
-
-# Test 5: Check model documentation
-echo ""
-echo "5. Checking model documentation..."
-MODELS=(
-    "gpt-5.2-high"
-    "codex-5.2-high"
-    "gemini-3.0-pro-preview"
-    "gemini-3.0-flash-preview"
-    "claude-sonnet-4.5"
-    "claude-opus-4.5"
-)
-
-for model in "${MODELS[@]}"; do
-    if grep -q "$model" "$SKILL_FILE"; then
-        pass "Model '$model' documented"
-    else
-        fail "Model '$model' not documented"
-    fi
-done
-
-# Test 6: Check parameter documentation
-echo ""
-echo "6. Checking parameter documentation..."
-for param in "apiProvider" "model" "goal" "plan" "progress" "uncertainties" "taskContext"; do
+echo "3. Checking parameter documentation..."
+for param in "goal" "plan" "progress" "uncertainties" "taskContext"; do
     if grep -q "\`$param\`" "$SKILL_FILE"; then
         pass "Parameter '$param' documented"
     else
@@ -129,38 +75,62 @@ for param in "apiProvider" "model" "goal" "plan" "progress" "uncertainties" "tas
     fi
 done
 
-# Test 7: Check for deprecated modelOverride
+# Test 4: Check for deprecated modelOverride
 echo ""
-echo "7. Checking for deprecated parameters..."
+echo "4. Checking for deprecated parameters..."
 if grep -q "modelOverride" "$SKILL_FILE"; then
     fail "Deprecated 'modelOverride' parameter still present"
 else
     pass "No deprecated 'modelOverride' parameter found"
 fi
 
-# Test 8: Check environment variable configuration example
+# Test 5: Legacy feature absence (negative checks)
+# These guard against silent reintroduction of the removed apiProvider/model
+# feature. They use positive `if grep -q ...; then fail; else pass; fi` style
+# rather than `! grep -q` because under `set -e` the inversion can swallow
+# failures. Anchors are deliberately specific:
+#   - `^required_environment:` matches only the frontmatter field, not prose.
+#   - `^\| \`apiProvider\`` and `^\| \`model\`` match only parameter-table rows;
+#     the legacy compat blockquote (which legitimately backtick-wraps these
+#     param names) is allowed to coexist because it never appears as a table row.
+# Trade-off for the API-key-name checks: a future doc legitimately mentioning
+# (e.g.) "OPENAI_API_KEY is not required" would trip them. That is intentional
+# for this no-CI repo — the prevention value outweighs the friction, and any
+# future legitimate mention can update this script in the same commit.
 echo ""
-echo "8. Checking configuration examples..."
-if grep -q "environment_variables" "$SKILL_FILE"; then
-    pass "Environment variables configuration example present"
+echo "5. Checking legacy feature absence..."
+
+if grep -q "^required_environment:" "$SKILL_FILE"; then
+    fail "Legacy 'required_environment:' frontmatter field still present"
 else
-    fail "Environment variables configuration example missing"
+    pass "No 'required_environment:' frontmatter field"
 fi
 
-if grep -q "settings.json" "$SKILL_FILE"; then
-    pass "settings.json reference present"
+if grep -q "^| \`apiProvider\`" "$SKILL_FILE"; then
+    fail "Legacy 'apiProvider' parameter table row still present"
 else
-    warn "settings.json reference not found"
+    pass "No 'apiProvider' parameter table row"
 fi
 
-# Test 9: Check provider-model mapping table
-echo ""
-echo "9. Checking provider-model mapping..."
+if grep -q "^| \`model\`" "$SKILL_FILE"; then
+    fail "Legacy 'model' parameter table row still present"
+else
+    pass "No 'model' parameter table row"
+fi
+
 if grep -q "| Provider | Models | Environment Variable |" "$SKILL_FILE"; then
-    pass "Provider-model mapping table exists"
+    fail "Legacy provider-model mapping table header still present"
 else
-    fail "Provider-model mapping table not found"
+    pass "No provider-model mapping table header"
 fi
+
+for key in "OPENAI_API_KEY" "GEMINI_API_KEY" "ANTHROPIC_API_KEY"; do
+    if grep -q "$key" "$SKILL_FILE"; then
+        fail "Legacy API key name '$key' still present"
+    else
+        pass "No legacy API key name '$key'"
+    fi
+done
 
 # Summary
 echo ""
@@ -169,7 +139,6 @@ echo "Validation Summary"
 echo "========================================"
 echo -e "${GREEN}Passed${NC}: $PASS"
 echo -e "${RED}Failed${NC}: $FAIL"
-echo -e "${YELLOW}Warnings${NC}: $WARN"
 echo ""
 
 if [ $FAIL -eq 0 ]; then

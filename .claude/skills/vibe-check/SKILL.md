@@ -1,11 +1,7 @@
 ---
 name: vibe-check
 description: Metacognitive sanity check for agent plans. Use before irreversible actions, when uncertainty is high, or when complexity is escalating. Helps prevent tunnel vision, over-engineering, and goal misalignment.
-argument-hint: goal: [goal] plan: [plan] apiProvider: [openai|google|anthropic] model: [model] (or free-form text)
-required_environment:
-  - OPENAI_API_KEY
-  - GEMINI_API_KEY
-  - ANTHROPIC_API_KEY
+argument-hint: goal: [goal] plan: [plan] (free-form text also works)
 ---
 
 # Vibe Check - Metacognitive Feedback
@@ -32,16 +28,8 @@ Users can provide input in a structured format or natural language. Parse the in
 | `progress` | Current progress. Tasks already completed or current stage. |
 | `uncertainties` | Uncertainties or concerns. Comma-separated or multi-line. |
 | `taskContext` | Context of the task (tech stack, constraints, environment, etc.). |
-| `apiProvider` | API provider (choose from openai, google, anthropic). |
-| `model` | Model name to use (see supported models per provider). |
 
-### Supported API Providers and Models
-
-| Provider | Models | Environment Variable |
-|----------|--------|---------------------|
-| `openai` | `gpt-5.2-high`, `codex-5.2-high` | `OPENAI_API_KEY` |
-| `google` | `gemini-3.0-pro-preview`, `gemini-3.0-flash-preview` | `GEMINI_API_KEY` |
-| `anthropic` | `claude-sonnet-4.5`, `claude-opus-4.5` | `ANTHROPIC_API_KEY` |
+> Legacy `apiProvider` and `model` keys are accepted but ignored.
 
 ### Input Format Examples
 
@@ -53,8 +41,6 @@ plan: OAuth2 + JWT tokens, Redis for session storage
 progress: Not started yet
 uncertainties: Is Redis really needed? Token expiry settings?
 taskContext: Express.js backend, PostgreSQL DB
-apiProvider: anthropic (optional)
-model: claude-opus-4.5 (optional)
 ```
 
 **Natural Language Format:**
@@ -66,43 +52,6 @@ model: claude-opus-4.5 (optional)
 ```
 /vibe-check OAuth2 auth implementation / JWT + Redis session storage
 ```
-
-### API Provider and Model Processing
-
-#### Default Behavior
-- **Default**: If `apiProvider` and `model` are not specified, use the current Claude Code session's default model.
-- **When Specified**: Provide feedback considering the characteristics of the specified model for the request.
-
-#### Provider Characteristics
-- **OpenAI (gpt-5.2-high, codex-5.2-high)**:
-  - gpt-5.2-high: General-purpose high-performance reasoning model.
-  - codex-5.2-high: Code-specialized model, optimized for complex coding tasks.
-
-- **Google (gemini-3.0-pro-preview, gemini-3.0-flash-preview)**:
-  - gemini-3.0-pro-preview: Balanced performance and cost.
-  - gemini-3.0-flash-preview: Fast response, suitable for simple tasks.
-
-- **Anthropic (claude-sonnet-4.5, claude-opus-4.5)**:
-  - claude-sonnet-4.5: Fast and efficient reasoning.
-  - claude-opus-4.5: Top-tier analysis and creative tasks.
-
-#### Configuration
-
-Set environment variables in ~/.claude/settings.json:
-```json
-{
-  "environment_variables": {
-    "OPENAI_API_KEY": "${OPENAI_API_KEY}",
-    "GEMINI_API_KEY": "${GEMINI_API_KEY}",
-    "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
-  }
-}
-```
-
-#### Validation
-- If `apiProvider` is specified, `model` must also be specified.
-- Verify if the specified `model` is supported by the `apiProvider`.
-- Verify if the API key environment variable for the provider is set.
 
 ---
 
