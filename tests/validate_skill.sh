@@ -46,7 +46,19 @@ fi
 # Test 2: Check frontmatter
 echo ""
 echo "2. Validating frontmatter..."
-if grep -q "^---$" "$SKILL_FILE"; then
+# Frontmatter must use the flat shape Claude Code skills require: line 1 is
+# "---", every line until the closing "---" is blank or a "key: ..." line
+# (no lists, multi-line values, or comments), and the closer appears before
+# any other content. Awk used because line-count bounds can be fooled when
+# body horizontal rules shift after frontmatter edits.
+if awk '
+    NR == 1 { if ($0 != "---") { bad=1; exit } ; next }
+    /^---$/ { closed=1; exit }
+    /^[a-zA-Z_-]+:/ { next }
+    /^[[:space:]]*$/ { next }
+    { bad=1; exit }
+    END { if (bad || !closed) exit 1 }
+' "$SKILL_FILE"; then
     pass "Frontmatter delimiters found"
 else
     fail "Frontmatter delimiters not found"
