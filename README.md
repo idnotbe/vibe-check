@@ -39,7 +39,18 @@ Based on research into Chain-Pattern Interrupts (CPI) showing **+27% improvement
 
 ## Installation
 
-### Method 1: Copy Skills Directory
+### Method 1: Install via Claude Code plugin marketplace (recommended)
+
+Run these two commands inside Claude Code:
+
+```
+/plugin marketplace add idnotbe/vibe-check
+/plugin install vibe-check@vibe-check
+```
+
+The first command registers this repository as a plugin marketplace; the second installs the `vibe-check` plugin from it. Restart your Claude Code session if `/vibe-check` does not appear immediately.
+
+### Method 2: Manual copy (fallback)
 
 1. Copy the skills directory to your project:
    ```bash
@@ -47,15 +58,6 @@ Based on research into Chain-Pattern Interrupts (CPI) showing **+27% improvement
    ```
 
 2. Verify the skill is available by typing `/vibe-check` in Claude Code. If it does not appear, restart your Claude Code session.
-
-### Method 2: Plugin Manifest
-
-This repository includes a `.claude-plugin/plugin.json` manifest. If your Claude Code environment supports plugin installation via manifest, the plugin.json defines:
-- Plugin name, version, and description
-- Skills path reference (`./.claude/skills/vibe-check`)
-- Author, homepage, repository, license, and keywords
-
-Refer to your Claude Code documentation for plugin manifest installation steps.
 
 ### Directory Structure
 
@@ -66,6 +68,7 @@ vibe-check/
       vibe-check/
         SKILL.md             # Core skill prompt (the entire "implementation")
   .claude-plugin/
+    marketplace.json         # Marketplace manifest (enables /plugin marketplace add)
     plugin.json              # Plugin manifest (v0.2.0)
   tests/
     validate_skill.sh        # Structural validator (17 checks)
@@ -236,7 +239,14 @@ See [test-infrastructure-roadmap.md](action-plans/test-infrastructure-roadmap.md
 
 ## Updating
 
-To update to a newer version, re-copy the `.claude/skills/vibe-check/` directory from the latest release. The plugin has no local state or configuration to preserve.
+If you installed via the plugin marketplace (Method 1), refresh and reinstall:
+
+```
+/plugin marketplace update vibe-check
+/plugin install vibe-check@vibe-check
+```
+
+If you installed via manual copy (Method 2), re-copy the `.claude/skills/vibe-check/` directory from the latest release. The plugin has no local state or configuration to preserve.
 
 ## Credits
 
