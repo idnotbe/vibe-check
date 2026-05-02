@@ -122,10 +122,16 @@
     "Cargo.toml",
     "go.mod"
   ],
-  "allowedExternalReadPaths": [],
+  "allowedExternalReadPaths": [
+    "/home/idnotbe/projects/claude-plugins",
+    "/home/idnotbe/projects/claude-plugins/**",
+    "/home/idnotbe/projects/claude-code-guardian/**"
+  ],
   "allowedExternalWritePaths": [
     "~/.claude/plans",
-    "~/.claude/plans/**"
+    "~/.claude/plans/**",
+    "/home/idnotbe/projects/claude-plugins",
+    "/home/idnotbe/projects/claude-plugins/**"
   ],
   "bashPathScan": {
     "enabled": true,
