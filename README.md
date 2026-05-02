@@ -44,11 +44,11 @@ Based on research into Chain-Pattern Interrupts (CPI) showing **+27% improvement
 Run these two commands inside Claude Code:
 
 ```
-/plugin marketplace add idnotbe/vibe-check
-/plugin install vibe-check@vibe-check
+/plugin marketplace add idnotbe/claude-plugins
+/plugin install vibe-check@idnotbe
 ```
 
-The first command registers this repository as a plugin marketplace; the second installs the `vibe-check` plugin from it. Restart your Claude Code session if `/vibe-check` does not appear immediately.
+The first command registers the `idnotbe` plugin marketplace hub; the second installs the `vibe-check` plugin from it. Restart your Claude Code session if `/vibe-check` does not appear immediately.
 
 ### Method 2: Manual copy (fallback)
 
@@ -68,7 +68,7 @@ vibe-check/
       vibe-check/
         SKILL.md             # Core skill prompt (the entire "implementation")
   .claude-plugin/
-    marketplace.json         # Marketplace manifest (enables /plugin marketplace add)
+    marketplace.json         # Standalone marketplace manifest (legacy direct-install path; KEEP -- see ADR-004)
     plugin.json              # Plugin manifest (v0.2.0)
   tests/
     validate_skill.sh        # Structural validator (17 checks)
@@ -242,8 +242,8 @@ See [test-infrastructure-roadmap.md](action-plans/test-infrastructure-roadmap.md
 If you installed via the plugin marketplace (Method 1), refresh and reinstall:
 
 ```
-/plugin marketplace update vibe-check
-/plugin install vibe-check@vibe-check
+/plugin marketplace update idnotbe
+/plugin install vibe-check@idnotbe
 ```
 
 If you installed via manual copy (Method 2), re-copy the `.claude/skills/vibe-check/` directory from the latest release. The plugin has no local state or configuration to preserve.

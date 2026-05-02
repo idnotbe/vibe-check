@@ -10,7 +10,7 @@ act as a meta-mentor.
 
     .claude/skills/vibe-check/SKILL.md   # The skill prompt (core artifact)
     .claude-plugin/plugin.json            # Plugin manifest (v0.2.0)
-    .claude-plugin/marketplace.json       # Marketplace manifest (enables /plugin marketplace add idnotbe/vibe-check)
+    .claude-plugin/marketplace.json       # Standalone marketplace manifest (legacy direct-install path retained for backward compat)
     tests/validate_skill.sh               # Automated structural validator (17 checks)
     tests/test_scenarios.md               # Manual test plan
     README.md                             # User-facing documentation
