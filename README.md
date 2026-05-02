@@ -68,7 +68,6 @@ vibe-check/
       vibe-check/
         SKILL.md             # Core skill prompt (the entire "implementation")
   .claude-plugin/
-    marketplace.json         # Standalone marketplace manifest (legacy direct-install path; KEEP -- see ADR-004)
     plugin.json              # Plugin manifest (v0.2.0)
   tests/
     validate_skill.sh        # Structural validator (17 checks)
