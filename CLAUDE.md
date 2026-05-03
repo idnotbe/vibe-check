@@ -63,25 +63,33 @@ ARCHITECTURE.md (under "Skill Specification → YAML Frontmatter").
 - Do not add Node.js tooling unless there is a clear, committed need.
 - All committed content should be in English.
 
-## 자율성 (Autonomy)
+## Autonomy
 
-기본 = 자율 실행. 결과는 1-2줄로 보고. 승인 요청은 아래 "확인 필수"에만 한정.
+Default = autonomous execution. Report results in 1-2 sentences. Request confirmation only for items under "Confirmation required" below.
 
-**판단 기준** — "1줄 명령으로 5분 내에 되돌릴 수 있는가?" → 예: 자율 실행. 아니오: 확인.
+**Decision rule** — both must hold to execute autonomously:
+1. **Reversible from local state** with a short, well-known sequence (`git revert`, `git restore`, `git mv` back, etc.) — not requiring conflict resolution or reflog archaeology.
+2. **No external side effects already in flight** — nothing that has notified humans, triggered CI someone watches, or could already have been pulled/consumed.
 
-**사전 승인 (확인 없이 실행)** — 이 저장소 한정, 가역적인 모든 것:
-- 파일 편집/생성/삭제 (tracked), `git add/commit/push` (origin/main 포함)
-- 브랜치/태그 로컬 조작, `git revert`, `git restore`
-- 테스트·검증·빌드 실행, action-plan 이동 및 status 갱신
-- subagent 위임, `pal mcp clink`, `vibe-check` 호출
+If either fails, confirm.
 
-**확인 필수** — 비가역 또는 외부 blast radius:
-- `git push --force` / `--force-with-lease` (특히 공유 브랜치)
-- untracked 파일·디렉토리 `rm -rf`, `.git/` 직접 수정
-- GitHub PR/issue 생성·코멘트, 외부 메시지·이메일 발송
-- 릴리스 태그, npm publish, 배포, 비용 발생 작업
-- hook 우회 (`--no-verify` 등), `git config` 수정
-- 사용자가 명시적으로 결정권을 요구한 사항
+**Pre-authorized (execute without confirmation)** — within this repo, when the decision rule holds:
+- File edit/create/delete (tracked), `git add/commit/push` (including `origin/main`)
+- Local branch/tag operations, `git revert`, `git restore`
+- Running tests, validators, builds; moving action-plans and updating status
+- Delegating to subagents; calling `pal mcp clink`, `vibe-check`
+
+**Confirmation required** — irreversible, history-rewriting, destructive, or external blast radius:
+- `git push --force` / `--force-with-lease` (especially on shared branches)
+- History rewrites on already-pushed commits: `git commit --amend`, `git rebase -i`, `git reset --hard` on shared history
+- Workspace destruction outside git's safety net: `git clean -fd`, `rm -rf` on untracked files/directories, direct edits inside `.git/`
+- Remote-ref deletion: `git push --delete`, deleting unmerged branches
+- Creating/commenting on GitHub PRs/issues, sending external messages or email
+- Release tags, `npm publish`, deploys, cost-incurring operations
+- Bypassing hooks (`--no-verify` etc.), modifying `git config`
+- Anything the user explicitly reserved decision authority over **in this conversation** (plan text alone does not count)
+
+**Default for unlisted operations**: if it touches only local tracked state and is reversible per the decision rule, treat as Pre-authorized. If it rewrites history, deletes untracked work, or has external reach, treat as Confirmation required. When genuinely ambiguous, confirm once and remember the answer for the rest of the session.
 
 ## Action Plans
 
@@ -95,10 +103,11 @@ ARCHITECTURE.md (under "Skill Specification → YAML Frontmatter").
 - 완료된 plan은 `action-plans/_done/`으로 이동
 - `action-plans/_ref/`는 참고/역사적 문서
 
-**Plan 작성 시 자율성 원칙:**
-- 기본은 **end-to-end 자율 실행**. "User approval gate", "wait for explicit approval", "surface to user before X" 등 승인 게이트를 넣지 마라
-- commit/push는 가역적 — 게이트 금지. 위 "확인 필수" 항목에 해당하는 단계에만 confirm step을 넣고 **옆에 이유 1줄** 명시 (예: `# force push to shared branch — irreversible`)
-- 기존 plan에서 "wait for approval" 발견 시: "확인 필수" 사유에 해당하면 유지, 아니면 제거 후 자율 진행
+**Plan authoring — autonomy principles:**
+- Default is **end-to-end autonomous execution**. Do not insert any pause / checkpoint / review / sign-off / approval / surface-to-user step — regardless of wording — unless it cites the exact "Confirmation required" bullet it maps to.
+- commit/push are reversible — never gate them.
+- Each gated step must include a citation comment naming the matching bullet, e.g. `# Gate: Confirmation required → "git push --force on shared branches"`. No citation = remove the gate.
+- When auditing existing plans, apply the same citation test: any gate without a valid citation is removed before execution proceeds.
 
 ## No CI
 
