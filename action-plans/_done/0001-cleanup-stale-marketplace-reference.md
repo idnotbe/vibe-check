@@ -1,6 +1,6 @@
 ---
-status: not-started
-progress: "Not started"
+status: done
+progress: "Closed"
 ---
 
 # Plan 0001: Cleanup Stale Marketplace Reference in overview.md
@@ -304,5 +304,14 @@ to draft this plan. The repo's Lightweight 1-round allowance (`action-plans/READ
 
 ## Notes & Deviations
 
-(Empty placeholder; will be populated during Phase F if any deviation from
-the plan as drafted occurred.)
+- **Close-commit message wording rephrased.** The plan's *Suggested commit
+  message* (Phase F.close) opens with `Rewrites docs/requirements/overview.md:28
+  ...`, which two independent reviewers (codex codereviewer round 1; gemini
+  codereviewer round 2) flagged as ambiguous: a `git log` reader could infer
+  the close commit itself modifies `docs/`, when in fact the close commit
+  stages only the action-plan file's frontmatter flip plus the `git mv` to
+  `_done/`. The body was rephrased to lead with `Closes plan 0001` and to
+  explicitly state `This commit only moves the plan file to _done/ and flips
+  its frontmatter to done.` The semantic content is unchanged; only the
+  attribution-of-action wording is tightened. The plan's other sections were
+  followed verbatim.
