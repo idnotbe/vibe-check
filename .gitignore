@@ -216,3 +216,10 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# ===== Deletion Archive (safety-net; not for distribution) =====
+_archive/
+
+# ===== Stray flag-shape files at root =====
+/bad.json
+/empty.json
