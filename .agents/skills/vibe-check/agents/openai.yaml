@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vibe Check"
+  short_description: "Decide whether the next step should proceed"
+  default_prompt: "Use $vibe-check to assess whether the next action should proceed, be narrowed, or stop."
