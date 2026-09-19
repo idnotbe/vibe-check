@@ -1,6 +1,6 @@
 ---
 name: vibe-check
-description: Unified metacognitive gate for deciding whether to proceed, adjust, or stop. Use when Codex may be overthinking, overtooling, relying on weak evidence, expanding scope, facing irreversible/destructive/public/external actions, privacy/secret/raw-capture risk, dependency or production config changes, repeated failures, or any point where Codex must decide whether the next unit of work is worth its cost, allowed, and sufficiently evidenced.
+description: Unified metacognitive gate for deciding whether to proceed, adjust, or stop. Use when the assistant may be overthinking, overtooling, relying on weak evidence, expanding scope, facing irreversible/destructive/public/external actions, privacy/secret/raw-capture risk, dependency or production config changes, repeated failures, or any point where the assistant must decide whether the next unit of work is worth its cost, allowed, and sufficiently evidenced.
 ---
 
 # Vibe Check
