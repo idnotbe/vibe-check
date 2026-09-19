@@ -13,6 +13,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unicodedata
 
@@ -80,6 +81,24 @@ def validate(root: Path) -> tuple[dict, dict[str, str]]:
     return manifest, files
 
 
+def catalogs(name: str) -> tuple[dict, dict]:
+    common = {'name': 'distribution-smoke', 'owner': {'name': 'idnotbe'},
+              'description': 'Disposable installer compatibility evaluation.'}
+    claude_market = dict(common, plugins=[{'name': name, 'source': f'./plugins/{name}'}])
+    codex_market = {'name': 'distribution-smoke', 'interface': {'displayName': 'Distribution Smoke'},
+                   'plugins': [{'name': name, 'source': {'source': 'local', 'path': f'./plugins/{name}'},
+                                'policy': {'installation': 'AVAILABLE', 'authentication': 'ON_INSTALL'},
+                                'category': 'Productivity'}]}
+    return claude_market, codex_market
+
+
+def configure_stdio() -> None:
+    # Native Windows redirected stdout may default to a legacy code page.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, 'reconfigure'):
+            stream.reconfigure(encoding='utf-8')
+
+
 def smoke(root: Path, report: dict) -> None:
     manifest, expected = validate(root)
     name = manifest['name']
@@ -92,6 +111,8 @@ def smoke(root: Path, report: dict) -> None:
         scratch = Path(temporary)
         home, project = scratch / 'home', scratch / 'project with spaces'
         home.mkdir()
+        (home / '.codex').mkdir()
+        (home / '.claude').mkdir()
         project.mkdir()
         env = dict(os.environ)
         env.update(HOME=str(home), USERPROFILE=str(home),
@@ -139,12 +160,7 @@ def smoke(root: Path, report: dict) -> None:
             shutil.copytree(root / relative, plugin / relative)
         for relative in ('.claude-plugin', '.agents/plugins'):
             (market / relative).mkdir(parents=True, exist_ok=True)
-        common = {'name': 'distribution-smoke', 'owner': {'name': 'idnotbe'}}
-        claude_market = dict(common, plugins=[{'name': name, 'source': f'./plugins/{name}'}])
-        codex_market = {'name': 'distribution-smoke', 'interface': {'displayName': 'Distribution Smoke'},
-                       'plugins': [{'name': name, 'source': {'source': 'local', 'path': f'./plugins/{name}'},
-                                    'policy': {'installation': 'AVAILABLE', 'authentication': 'ON_INSTALL'},
-                                    'category': 'Productivity'}]}
+        claude_market, codex_market = catalogs(name)
         (market / '.claude-plugin/marketplace.json').write_text(json.dumps(claude_market), encoding='utf-8')
         (market / '.agents/plugins/marketplace.json').write_text(json.dumps(codex_market), encoding='utf-8')
         run('claude', 'plugin', 'validate', str(plugin), '--strict')
@@ -168,6 +184,7 @@ def smoke(root: Path, report: dict) -> None:
 
 
 def main() -> int:
+    configure_stdio()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument('--smoke', action='store_true')

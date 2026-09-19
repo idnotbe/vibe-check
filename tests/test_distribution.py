@@ -2,6 +2,8 @@
 import importlib.util
 import json
 import os
+import subprocess
+import sys
 from pathlib import Path
 import tempfile
 import unittest
@@ -33,6 +35,25 @@ class DistributionTests(unittest.TestCase):
     def reject(self):
         with self.assertRaises((ValueError, OSError)):
             distribution.validate(self.root)
+
+    def test_temporary_catalogs_have_descriptions_and_consistent_sources(self):
+        claude, codex = distribution.catalogs('example')
+        self.assertTrue(claude['description'])
+        self.assertEqual(claude['name'], codex['name'])
+        self.assertEqual(claude['plugins'][0]['source'], './plugins/example')
+        self.assertEqual(codex['plugins'][0]['source']['path'], './plugins/example')
+
+    def test_utf8_logging_with_legacy_redirected_stdout(self):
+        code = (
+            'import importlib.util; '
+            f's=importlib.util.spec_from_file_location("d", {str(SPEC.origin)!r}); '
+            'm=importlib.util.module_from_spec(s); s.loader.exec_module(m); '
+            'm.configure_stdio(); print("\\u25c6")'
+        )
+        env = dict(os.environ, PYTHONIOENCODING='cp1252')
+        result = subprocess.run([sys.executable, '-B', '-c', code], env=env,
+                                capture_output=True, timeout=30, check=True)
+        self.assertEqual(result.stdout.decode('utf-8').strip(), '\u25c6')
 
     def test_valid_bundle_in_path_with_spaces(self):
         manifest, files = distribution.validate(self.root)
