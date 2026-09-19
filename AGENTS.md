@@ -1,6 +1,6 @@
 # vibe-check Project Rules
 
-This repository develops the vibe-check Codex skill as an independent project.
+This repository develops the portable vibe-check skill and its Claude/OpenAI plugin wrappers.
 
 ## Source of truth
 

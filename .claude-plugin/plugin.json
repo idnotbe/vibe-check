@@ -1,0 +1,11 @@
+{
+  "name": "vibe-check",
+  "version": "1.0.0",
+  "description": "Assess whether the next action should proceed, be adjusted, or stop.",
+  "author": {
+    "name": "idnotbe"
+  },
+  "homepage": "https://github.com/idnotbe/vibe-check",
+  "repository": "https://github.com/idnotbe/vibe-check",
+  "skills": "./.agents/skills/"
+}
